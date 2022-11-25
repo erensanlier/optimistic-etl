@@ -104,6 +104,16 @@ for (( batch_start_block=$start_block; batch_start_block <= $end_block; batch_st
     python3 ethereumetl export_token_transfers --start-block=${batch_start_block} --end-block=${batch_end_block} --provider-uri="${provider_uri}" --output=${token_transfers_file}
     quit_if_returned_error
 
+    ### erc721_transfers
+
+    erc721_transfers_output_dir=${output_dir}/erc721_transfers${partition_dir}
+    mkdir -p ${erc721_transfers_output_dir};
+
+    erc721_transfers_file=${erc721_transfers_output_dir}/erc721_transfers_${file_name_suffix}.csv
+    log "Exporting ERC20 transfers from blocks ${block_range} to ${erc721_transfers_file}"
+    python3 ethereumetl export_erc721_transfers --start-block=${batch_start_block} --end-block=${batch_end_block} --provider-uri="${provider_uri}" --output=${erc721_transfers_file}
+    quit_if_returned_error
+
     ### receipts_and_logs
 
     transaction_hashes_output_dir=${output_dir}/transaction_hashes${partition_dir}
