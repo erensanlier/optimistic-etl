@@ -33,11 +33,15 @@ from ethereumetl.jobs.export_blocks_job import ExportBlocksJob
 from ethereumetl.jobs.export_contracts_job import ExportContractsJob
 from ethereumetl.jobs.export_receipts_job import ExportReceiptsJob
 from ethereumetl.jobs.export_token_transfers_job import ExportTokenTransfersJob
+from ethereumetl.jobs.export_erc20_transfers_job import ExportERC20TransfersJob
+from ethereumetl.jobs.export_erc721_transfers_job import ExportERC721TransfersJob
 from ethereumetl.jobs.export_tokens_job import ExportTokensJob
 from ethereumetl.jobs.exporters.blocks_and_transactions_item_exporter import blocks_and_transactions_item_exporter
 from ethereumetl.jobs.exporters.contracts_item_exporter import contracts_item_exporter
 from ethereumetl.jobs.exporters.receipts_and_logs_item_exporter import receipts_and_logs_item_exporter
 from ethereumetl.jobs.exporters.token_transfers_item_exporter import token_transfers_item_exporter
+from ethereumetl.jobs.exporters.erc20_transfers_item_exporter import erc20_transfers_item_exporter
+from ethereumetl.jobs.exporters.erc721_transfers_item_exporter import erc721_transfers_item_exporter
 from ethereumetl.jobs.exporters.tokens_item_exporter import tokens_item_exporter
 from ethereumetl.providers.auto import get_provider_from_uri
 from ethereumetl.thread_local_proxy import ThreadLocalProxy
@@ -148,6 +152,63 @@ def export_all_common(partitions, output_dir, provider_uri, max_workers, batch_s
                 batch_size=batch_size,
                 web3=ThreadLocalProxy(lambda: build_web3(get_provider_from_uri(provider_uri))),
                 item_exporter=token_transfers_item_exporter(token_transfers_file),
+                max_workers=max_workers)
+            job.run()
+
+        # # # erc20_transfers # # #
+
+        erc20_transfers_file = None
+        if is_log_filter_supported(provider_uri):
+            erc20_transfers_output_dir = '{output_dir}/erc20_transfers{partition_dir}'.format(
+                output_dir=output_dir,
+                partition_dir=partition_dir,
+            )
+            os.makedirs(os.path.dirname(erc20_transfers_output_dir), exist_ok=True)
+
+            erc20_transfers_file = '{erc20_transfers_output_dir}/erc20_transfers_{file_name_suffix}.csv'.format(
+                erc20_transfers_output_dir=erc20_transfers_output_dir,
+                file_name_suffix=file_name_suffix,
+            )
+            logger.info(
+                'Exporting ERC20 transfers from blocks {block_range} to {erc20_transfers_file}'.format(
+                    block_range=block_range,
+                    erc20_transfers_file=erc20_transfers_file,
+                ))
+
+            job = ExportERC20TransfersJob(
+                start_block=batch_start_block,
+                end_block=batch_end_block,
+                batch_size=batch_size,
+                web3=ThreadLocalProxy(lambda: build_web3(get_provider_from_uri(provider_uri))),
+                item_exporter=erc20_transfers_item_exporter(erc20_transfers_file),
+                max_workers=max_workers)
+            job.run()
+
+        # # # erc721_transfers # # #
+
+        erc721_transfers_file = None
+        if is_log_filter_supported(provider_uri):
+            erc721_transfers_output_dir = '{output_dir}/erc721_transfers{partition_dir}'.format(
+                output_dir=output_dir,
+                partition_dir=partition_dir,
+            )
+            os.makedirs(os.path.dirname(erc721_transfers_output_dir), exist_ok=True)
+
+            erc721_transfers_file = '{erc721_transfers_output_dir}/erc721_transfers_{file_name_suffix}.csv'.format(
+                erc721_transfers_output_dir=erc721_transfers_output_dir,
+                file_name_suffix=file_name_suffix,
+            )
+            logger.info('Exporting ERC721 transfers from blocks {block_range} to {erc721_transfers_file}'.format(
+                block_range=block_range,
+                erc721_transfers_file=erc721_transfers_file,
+            ))
+
+            job = ExportERC721TransfersJob(
+                start_block=batch_start_block,
+                end_block=batch_end_block,
+                batch_size=batch_size,
+                web3=ThreadLocalProxy(lambda: build_web3(get_provider_from_uri(provider_uri))),
+                item_exporter=erc721_transfers_item_exporter(erc721_transfers_file),
                 max_workers=max_workers)
             job.run()
 
