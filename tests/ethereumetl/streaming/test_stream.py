@@ -56,6 +56,7 @@ def test_stream(tmpdir, start_block, end_block, batch_size, resource_group, enti
     transactions_output_file = str(tmpdir.join('actual_transactions.json'))
     logs_output_file = str(tmpdir.join('actual_logs.json'))
     token_transfers_output_file = str(tmpdir.join('actual_token_transfers.json'))
+    erc20_transfers_output_file = str(tmpdir.join('actual_erc20_transfers.json'))
     erc721_transfers_output_file = str(tmpdir.join('actual_erc721_transfers.json'))
     traces_output_file = str(tmpdir.join('actual_traces.json'))
     contracts_output_file = str(tmpdir.join('actual_contracts.json'))
@@ -74,6 +75,7 @@ def test_stream(tmpdir, start_block, end_block, batch_size, resource_group, enti
                 'transaction': transactions_output_file,
                 'log': logs_output_file,
                 'token_transfer': token_transfers_output_file,
+                'erc20_transfer': erc20_transfers_output_file,
                 'erc721_transfer': erc721_transfers_output_file,
                 'trace': traces_output_file,
                 'contract': contracts_output_file,
@@ -118,6 +120,12 @@ def test_stream(tmpdir, start_block, end_block, batch_size, resource_group, enti
             read_resource(resource_group, 'expected_token_transfers.json'), read_file(token_transfers_output_file)
         )
 
+    if 'erc20_transfer' in entity_types:
+        print('=====================')
+        print(read_file(erc20_transfers_output_file))
+        compare_lines_ignore_order(
+            read_resource(resource_group, 'expected_erc20_transfers.json'), read_file(erc20_transfers_output_file)
+        )
     if 'erc721_transfer' in entity_types:
         print('=====================')
         print(read_file(erc721_transfers_output_file))
