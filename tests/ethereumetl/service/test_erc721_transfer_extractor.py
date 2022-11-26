@@ -47,4 +47,3 @@ def test_extract_transfer_from_receipt_log():
     assert erc721_transfer.token_id == 4013 #hex(0xfad) = 4013
     assert erc721_transfer.transaction_hash == '0xd62a74c7b04e8e0539398f6ba6a5eb11ad8aa862e77f0af718f0fad19b0b0480'
     assert erc721_transfer.block_number == 1061946
-test_extract_transfer_from_receipt_log()
