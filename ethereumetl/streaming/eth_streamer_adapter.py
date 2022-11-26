@@ -174,7 +174,7 @@ class EthStreamerAdapter:
         job.run()
         erc20_transfers = exporter.get_items('erc20_transfer')
         return erc20_transfers
-
+        
     def _extract_erc721_transfers(self, logs):
         exporter = InMemoryItemExporter(item_types=['erc721_transfer'])
         job = ExtractERC721TransfersJob(

@@ -122,11 +122,10 @@ def test_stream(tmpdir, start_block, end_block, batch_size, resource_group, enti
 
     if 'erc20_transfer' in entity_types:
         print('=====================')
-        print(read_file(erc721_transfers_output_file))
+        print(read_file(erc20_transfers_output_file))
         compare_lines_ignore_order(
             read_resource(resource_group, 'expected_erc20_transfers.json'), read_file(erc20_transfers_output_file)
         )
-
     if 'erc721_transfer' in entity_types:
         print('=====================')
         print(read_file(erc721_transfers_output_file))
