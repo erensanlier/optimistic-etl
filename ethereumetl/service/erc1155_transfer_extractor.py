@@ -60,9 +60,13 @@ class EthERC1155TransferExtractor(object):
             erc1155_transfer.operator = word_to_address(topics_with_data[1])
             erc1155_transfer.from_address = word_to_address(topics_with_data[2])
             erc1155_transfer.to_address = word_to_address(topics_with_data[3])
+            erc1155_transfer.transaction_hash = receipt_log.transaction_hash
+            erc1155_transfer.log_index = receipt_log.log_index
+            erc1155_transfer.block_number = receipt_log.block_number
             if (topics[0]).casefold() == TRANSFER_SINGLE_EVENT_TOPIC:
                 erc1155_transfer.ids = [hex_to_dec(topics_with_data[4])]
                 erc1155_transfer.values = [hex_to_dec(topics_with_data[5])]
+                return [erc1155_transfer]
             else: # by default this is a TransferBatch
                 # half of them token id's, remaining half how many of them have been transferred in the transaction
                 # thus, total_items is always even, we don't have to worry about division immediately.
@@ -70,15 +74,22 @@ class EthERC1155TransferExtractor(object):
                 # | 4 items about the event | data unpacked |
                 # | 0                       | 4                    | 6 | 7 + k                                  | 8 +k                                      |
                 # | 4 items about the event | 2 items for packing | number of items in the first array | items | number of items in the next array | items |
-
+                transactions = []
                 total_items = int((len(topics_with_data[6:]) - 2) / 2)
-                erc1155_transfer.ids = [hex_to_dec(item) for item in topics_with_data[7: 7+total_items]]
-                erc1155_transfer.values = [hex_to_dec(item) for item in topics_with_data[8+total_items:]]
-            erc1155_transfer.transaction_hash = receipt_log.transaction_hash
-            erc1155_transfer.log_index = receipt_log.log_index
-            erc1155_transfer.block_number = receipt_log.block_number
-            return erc1155_transfer
-
+                ids = [hex_to_dec(item) for item in topics_with_data[7: 7+total_items]]
+                values = [hex_to_dec(item) for item in topics_with_data[8+total_items:]]
+                total_transfer = dict()
+                for pair in list(zip(ids,values)):
+                    if pair[0] in total_transfer.keys():
+                        total_transfer[pair[0]] += pair[1]
+                    else:
+                        total_transfer[pair[0]] = pair[1]
+                for key in total_transfer.keys():
+                    base_tx = erc1155_transfer
+                    base_tx.id = key
+                    base_tx.value = total_transfer[key]
+                    transactions.append(base_tx)
+                return transactions
         return None
 
 

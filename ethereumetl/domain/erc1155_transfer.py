@@ -32,8 +32,8 @@ class EthERC1155Transfer(object):
         self.operator = None
         self.from_address = None
         self.to_address = None
-        self.ids = None
-        self.values = None
+        self.id = None
+        self.value = None
         self.transaction_hash = None
         self.log_index = None
         self.block_number = None

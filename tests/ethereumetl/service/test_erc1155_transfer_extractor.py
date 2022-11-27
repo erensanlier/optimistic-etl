@@ -39,8 +39,8 @@ def test_extract_transfer_single_from_receipt_log():
                   '0x000000000000000000000000ab3e5a900663ea8c573b8f893d540d331fbab9f5']
     log.transaction_hash = '0xdb7f3b73eb17ea2ef818a1649c77c4f5b81451f564508f55667c58bf356a2816'
 
-    erc1155_transfer = erc1155_transfer_extractor.extract_transfer_from_log(log)
-
+    erc1155_transfers = erc1155_transfer_extractor.extract_transfer_from_log(log)
+    erc1155_transfer = erc1155_transfers[0]
 
     assert erc1155_transfer.token_address == '0x5351105753bdbc3baa908a0c04f1468535749c3d'
     assert erc1155_transfer.operator == '0xab3e5a900663ea8c573b8f893d540d331fbab9f5'
@@ -63,18 +63,18 @@ def test_extract_transfer_batch_from_receipt_log():
                   '0x00000000000000000000000090ba4568010b0fc7739c1b785af08438b6275e08']
     log.transaction_hash = '0x35adcfb1a1a69e3cae18c4b23cf30a62a3278aa704e32fe558b12c474a3f8d3e'
 
-    erc1155_transfer = erc1155_transfer_extractor.extract_transfer_from_log(log)
+    erc1155_transfers = erc1155_transfer_extractor.extract_transfer_from_log(log)
     expected_id_list = [496131690970728279729600177635518052302848,
                         497492820438412033583453676065245125148672,
-                        498513667539174848973843799887540429783040,
-                        497492820438412033583453676065245125148672]
-    expected_value_list = [1,1,1,1]
+                        498513667539174848973843799887540429783040]
+    expected_value_list = [1,2,1]
+    expected_values = dict(zip(expected_id_list, expected_value_list))
+    for erc1155_transfer in erc1155_transfers:
+        assert erc1155_transfer.token_address == '0xc36cf0cfcb5d905b8b513860db0cfe63f6cf9f5c'
+        assert erc1155_transfer.operator == '0x37b94141bca7000241b87b4b361f155197181002'
+        assert erc1155_transfer.from_address == '0x381e840f4ebe33d0153e9a312105554594a98c42'
+        assert erc1155_transfer.to_address == '0x90ba4568010b0fc7739c1b785af08438b6275e08'
+        assert erc1155_transfer.transaction_hash == '0x35adcfb1a1a69e3cae18c4b23cf30a62a3278aa704e32fe558b12c474a3f8d3e'
+        assert erc1155_transfer.block_number == 16059982
+        assert expected_values[erc1155_transfer.id] == erc1155_transfer.value
 
-    assert erc1155_transfer.token_address == '0xc36cf0cfcb5d905b8b513860db0cfe63f6cf9f5c'
-    assert erc1155_transfer.operator == '0x37b94141bca7000241b87b4b361f155197181002'
-    assert erc1155_transfer.from_address == '0x381e840f4ebe33d0153e9a312105554594a98c42'
-    assert erc1155_transfer.to_address == '0x90ba4568010b0fc7739c1b785af08438b6275e08'
-    assert erc1155_transfer.ids == expected_id_list
-    assert erc1155_transfer.values == expected_value_list
-    assert erc1155_transfer.transaction_hash == '0x35adcfb1a1a69e3cae18c4b23cf30a62a3278aa704e32fe558b12c474a3f8d3e'
-    assert erc1155_transfer.block_number == 16059982
