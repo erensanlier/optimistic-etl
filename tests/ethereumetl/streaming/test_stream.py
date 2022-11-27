@@ -43,8 +43,8 @@ def read_resource(resource_group, file_name):
 @pytest.mark.parametrize("start_block, end_block, batch_size, resource_group, entity_types, provider_type", [
     (1755634, 1755635, 1, 'blocks_1755634_1755635', EntityType.ALL_FOR_INFURA, 'mock'),
     skip_if_slow_tests_disabled([1755634, 1755635, 1, 'blocks_1755634_1755635', EntityType.ALL_FOR_INFURA, 'infura']),
-    (508110, 508110, 1, 'blocks_508110_508110', ['trace', 'contract', 'token'], 'mock'),
-    (2112234, 2112234, 1, 'blocks_2112234_2112234', ['trace', 'contract', 'token'], 'mock'),
+    (508110, 508110, 1, 'blocks_508110_508110', ['trace', 'contract', 'token', 'erc20_transfer','erc721_transfer', 'erc1155_transfer'], 'mock'),
+    (2112234, 2112234, 1, 'blocks_2112234_2112234', ['trace', 'contract', 'token', 'erc20_transfer','erc721_transfer', 'erc1155_transfer'], 'mock'),
 ])
 def test_stream(tmpdir, start_block, end_block, batch_size, resource_group, entity_types, provider_type):
     try:
@@ -58,6 +58,7 @@ def test_stream(tmpdir, start_block, end_block, batch_size, resource_group, enti
     token_transfers_output_file = str(tmpdir.join('actual_token_transfers.json'))
     erc20_transfers_output_file = str(tmpdir.join('actual_erc20_transfers.json'))
     erc721_transfers_output_file = str(tmpdir.join('actual_erc721_transfers.json'))
+    erc1155_transfers_output_file = str(tmpdir.join('actual_erc1155_transfers.json'))
     traces_output_file = str(tmpdir.join('actual_traces.json'))
     contracts_output_file = str(tmpdir.join('actual_contracts.json'))
     tokens_output_file = str(tmpdir.join('actual_tokens.json'))
@@ -77,6 +78,7 @@ def test_stream(tmpdir, start_block, end_block, batch_size, resource_group, enti
                 'token_transfer': token_transfers_output_file,
                 'erc20_transfer': erc20_transfers_output_file,
                 'erc721_transfer': erc721_transfers_output_file,
+                'erc1155_transfer': erc1155_transfers_output_file,
                 'trace': traces_output_file,
                 'contract': contracts_output_file,
                 'token': tokens_output_file,
@@ -131,6 +133,12 @@ def test_stream(tmpdir, start_block, end_block, batch_size, resource_group, enti
         print(read_file(erc721_transfers_output_file))
         compare_lines_ignore_order(
             read_resource(resource_group, 'expected_erc721_transfers.json'), read_file(erc721_transfers_output_file)
+        )
+    if 'erc1155_transfer' in entity_types:
+        print('=====================')
+        print(read_file(erc1155_transfers_output_file))
+        compare_lines_ignore_order(
+            read_resource(resource_group, 'expected_erc1155_transfers.json'), read_file(erc1155_transfers_output_file)
         )
 
     if 'trace' in entity_types:

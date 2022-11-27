@@ -55,9 +55,10 @@ class ExtractERC1155TransfersJob(BaseJob):
 
     def _extract_transfer(self, log_dict):
         log = self.receipt_log_mapper.dict_to_receipt_log(log_dict)
-        erc1155_transfer = self.erc1155_transfer_extractor.extract_transfer_from_log(log)
-        if erc1155_transfer is not None:
-            self.item_exporter.export_item(self.erc1155_transfer_mapper.erc1155_transfer_to_dict(erc1155_transfer))
+        erc1155_transfers = self.erc1155_transfer_extractor.extract_transfer_from_log(log)
+        if erc1155_transfers is not None:
+            for transfer in erc1155_transfers:
+                self.item_exporter.export_item(self.erc1155_transfer_mapper.erc1155_transfer_to_dict(transfer))
 
     def _end(self):
         self.batch_work_executor.shutdown()

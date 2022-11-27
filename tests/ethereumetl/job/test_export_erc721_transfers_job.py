@@ -55,5 +55,5 @@ def test_export_erc721_transfers_job(tmpdir, start_block, end_block, batch_size,
     job.run()
 
     compare_lines_ignore_order(
-        read_resource(resource_group, 'expected_erc1155_transfers.csv'), read_file(output_file)
+        read_resource(resource_group, 'expected_erc721_transfers.csv'), read_file(output_file)
     )

@@ -25,9 +25,11 @@ from blockchainetl.jobs.exporters.composite_item_exporter import CompositeItemEx
 
 FIELDS_TO_EXPORT = [
     'token_address',
+    'operator',
     'from_address',
     'to_address',
-    'token_id',
+    'id',
+    'value',
     'transaction_hash',
     'log_index',
     'block_number'

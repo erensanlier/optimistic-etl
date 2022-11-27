@@ -86,9 +86,10 @@ class ExportERC1155TransfersJob(BaseJob):
                 raise(e)
         for event in events:
             log = self.receipt_log_mapper.web3_dict_to_receipt_log(event)
-            erc1155_transfer = self.erc1155_transfer_extractor.extract_transfer_from_log(log)
-            if erc1155_transfer is not None:
-                self.item_exporter.export_item(self.erc1155_transfer_mapper.erc1155_transfer_to_dict(erc1155_transfer))
+            erc1155_transfers = self.erc1155_transfer_extractor.extract_transfer_from_log(log)
+            if erc1155_transfers is not None:
+                for transfer in erc1155_transfers:
+                    self.item_exporter.export_item(self.erc1155_transfer_mapper.erc1155_transfer_to_dict(transfer))
 
         if self._supports_eth_newFilter:
             self.web3.eth.uninstallFilter(event_filter.filter_id)

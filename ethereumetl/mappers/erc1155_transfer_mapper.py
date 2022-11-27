@@ -26,9 +26,11 @@ class EthERC1155TransferMapper(object):
         return {
             'type': 'erc1155_transfer',
             'token_address': erc1155_transfer.token_address,
+            'operator': erc1155_transfer.operator,
             'from_address': erc1155_transfer.from_address,
             'to_address': erc1155_transfer.to_address,
-            'token_id': erc1155_transfer.token_id,
+            'id': erc1155_transfer.id,
+            'value': erc1155_transfer.value,
             'transaction_hash': erc1155_transfer.transaction_hash,
             'log_index': erc1155_transfer.log_index,
             'block_number': erc1155_transfer.block_number,

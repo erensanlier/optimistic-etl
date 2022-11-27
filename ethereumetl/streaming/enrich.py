@@ -140,10 +140,6 @@ def enrich_token_transfers(blocks, token_transfers):
 
     return result
 
-def enrich_erc1155_transfers(blocks, erc721_transfers):
-    # TODO: 1155
-    return None
-
 
 def enrich_erc20_transfers(blocks, erc20_transfers):
     result = list(join(
@@ -188,6 +184,32 @@ def enrich_erc721_transfers(blocks, erc721_transfers):
         ]))
 
     if len(result) != len(erc721_transfers):
+        raise ValueError('The number of token transfers is wrong ' + str(result))
+
+    return result
+
+
+def enrich_erc1155_transfers(blocks, erc1155_transfers):
+    result = list(join(
+        erc1155_transfers, blocks, ('block_number', 'number'),
+        [
+            'type',
+            'token_address',
+            'operator'
+            'from_address',
+            'to_address',
+            'id',
+            'value',
+            'transaction_hash',
+            'log_index',
+            'block_number'
+        ],
+        [
+            ('timestamp', 'block_timestamp'),
+            ('hash', 'block_hash'),
+        ]))
+
+    if len(result) != len(erc1155_transfers):
         raise ValueError('The number of token transfers is wrong ' + str(result))
 
     return result
