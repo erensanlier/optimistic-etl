@@ -23,10 +23,17 @@
 
 class EthERC1155Transfer(object):
     def __init__(self):
+        """
+         In order to represent TransferSingle and TransferBatch in the same object,
+         we should use an array within `self.values` and `self.ids`. If the event was a
+         TransferSingle event, we should put only one element to the array.
+        """
         self.token_address = None
+        self.operator = None
         self.from_address = None
         self.to_address = None
-        self.token_id = None
+        self.ids = None
+        self.values = None
         self.transaction_hash = None
         self.log_index = None
         self.block_number = None
