@@ -54,3 +54,11 @@ ENV/
 # ide
 .idea
 .vscode
+
+# scratchpad
+scratchpad.ipynb
+
+#secrets
+secrets.yaml
+=======
+.vscode

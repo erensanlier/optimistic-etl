@@ -7,12 +7,13 @@ from ethereumetl.jobs.export_blocks_job import ExportBlocksJob
 from ethereumetl.jobs.export_receipts_job import ExportReceiptsJob
 from ethereumetl.jobs.export_traces_job import ExportTracesJob
 from ethereumetl.jobs.extract_contracts_job import ExtractContractsJob
+from ethereumetl.jobs.extract_erc1155_transfers_job import ExtractERC1155TransfersJob
 from ethereumetl.jobs.extract_erc20_transfers_job import ExtractERC20TransfersJob
 from ethereumetl.jobs.extract_erc721_transfers_job import ExtractERC721TransfersJob
 from ethereumetl.jobs.extract_token_transfers_job import ExtractTokenTransfersJob
 from ethereumetl.jobs.extract_tokens_job import ExtractTokensJob
 from ethereumetl.streaming.enrich import enrich_transactions, enrich_logs, enrich_token_transfers, enrich_traces, \
-    enrich_contracts, enrich_tokens, enrich_erc20_transfers, enrich_erc721_transfers
+    enrich_contracts, enrich_tokens, enrich_erc20_transfers, enrich_erc721_transfers, enrich_erc1155_transfers
 from ethereumetl.streaming.eth_item_id_calculator import EthItemIdCalculator
 from ethereumetl.streaming.eth_item_timestamp_calculator import EthItemTimestampCalculator
 from ethereumetl.thread_local_proxy import ThreadLocalProxy
@@ -68,6 +69,11 @@ class EthStreamerAdapter:
         if self._should_export(EntityType.ERC721_TRANSFER):
             erc721_transfers = self._extract_erc721_transfers(logs)
 
+        # Extract ERC1155 transfers
+        erc1155_transfers = []
+        if self._should_export(EntityType.ERC1155_TRANSFER):
+            erc1155_transfers = self._extract_erc1155_transfers(logs)
+
         # Export traces
         traces = []
         if self._should_export(EntityType.TRACE):
@@ -92,9 +98,11 @@ class EthStreamerAdapter:
         enriched_token_transfers = enrich_token_transfers(blocks, token_transfers) \
             if EntityType.TOKEN_TRANSFER in self.entity_types else []
         enriched_erc20_transfers = enrich_erc20_transfers(blocks, erc20_transfers) \
-            if EntityType.TOKEN_TRANSFER in self.entity_types else []
+            if EntityType.ERC20_TRANSFER in self.entity_types else []
         enriched_erc721_transfers = enrich_erc721_transfers(blocks, erc721_transfers) \
-            if EntityType.TOKEN_TRANSFER in self.entity_types else []
+            if EntityType.ERC721_TRANSFER in self.entity_types else []
+        enriched_erc1155_transfers = enrich_erc1155_transfers(blocks, erc1155_transfers) \
+            if EntityType.ERC1155_TRANSFER in self.entity_types else []
         enriched_traces = enrich_traces(blocks, traces) \
             if EntityType.TRACE in self.entity_types else []
         enriched_contracts = enrich_contracts(blocks, contracts) \
@@ -111,6 +119,7 @@ class EthStreamerAdapter:
             sort_by(enriched_token_transfers, ('block_number', 'log_index')) + \
             sort_by(enriched_erc20_transfers, ('block_number', 'log_index')) + \
             sort_by(enriched_erc721_transfers, ('block_number', 'log_index')) + \
+            sort_by(enriched_erc1155_transfers, ('block_number', 'log_index')) + \
             sort_by(enriched_traces, ('block_number', 'trace_index')) + \
             sort_by(enriched_contracts, ('block_number',)) + \
             sort_by(enriched_tokens, ('block_number',))
@@ -186,6 +195,17 @@ class EthStreamerAdapter:
         erc721_transfers = exporter.get_items('erc721_transfer')
         return erc721_transfers
 
+    def _extract_erc1155_transfers(self, logs):
+        exporter = InMemoryItemExporter(item_types=['erc1155_transfer'])
+        job = ExtractERC1155TransfersJob(
+            logs_iterable=logs,
+            batch_size=self.batch_size,
+            max_workers=self.max_workers,
+            item_exporter=exporter)
+        job.run()
+        erc1155_transfers = exporter.get_items('erc1155_transfer')
+        return erc1155_transfers
+
     def _export_traces(self, start_block, end_block):
         exporter = InMemoryItemExporter(item_types=['trace'])
         job = ExportTracesJob(
@@ -239,6 +259,15 @@ class EthStreamerAdapter:
 
         if entity_type == EntityType.TOKEN_TRANSFER:
             return EntityType.TOKEN_TRANSFER in self.entity_types
+
+        if entity_type == EntityType.ERC20_TRANSFER:
+            return EntityType.ERC20_TRANSFER in self.entity_types
+
+        if entity_type == EntityType.ERC721_TRANSFER:
+            return EntityType.ERC721_TRANSFER in self.entity_types
+
+        if entity_type == EntityType.ERC1155_TRANSFER:
+            return EntityType.ERC1155_TRANSFER in self.entity_types
 
         if entity_type == EntityType.TRACE:
             return EntityType.TRACE in self.entity_types or self._should_export(EntityType.CONTRACT)

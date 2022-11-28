@@ -96,13 +96,13 @@ for (( batch_start_block=$start_block; batch_start_block <= $end_block; batch_st
 
     ### token_transfers
 
-    token_transfers_output_dir=${output_dir}/token_transfers${partition_dir}
-    mkdir -p ${token_transfers_output_dir};
-
-    token_transfers_file=${token_transfers_output_dir}/token_transfers_${file_name_suffix}.csv
-    log "Exporting ERC20 and ERC721 transfers from blocks ${block_range} to ${token_transfers_file}"
-    python3 ethereumetl export_token_transfers --start-block=${batch_start_block} --end-block=${batch_end_block} --provider-uri="${provider_uri}" --output=${token_transfers_file}
-    quit_if_returned_error
+#    token_transfers_output_dir=${output_dir}/token_transfers${partition_dir}
+#    mkdir -p ${token_transfers_output_dir};
+#
+#    token_transfers_file=${token_transfers_output_dir}/token_transfers_${file_name_suffix}.csv
+#    log "Exporting ERC20 and ERC721 transfers from blocks ${block_range} to ${token_transfers_file}"
+#    python3 ethereumetl export_token_transfers --start-block=${batch_start_block} --end-block=${batch_end_block} --provider-uri="${provider_uri}" --output=${token_transfers_file}
+#    quit_if_returned_error
 
     ### erc20_transfers
 
@@ -117,6 +117,16 @@ for (( batch_start_block=$start_block; batch_start_block <= $end_block; batch_st
 
     ### erc721_transfers
 
+    erc721_transfers_output_dir=${output_dir}/erc721_transfers${partition_dir}
+    mkdir -p ${erc721_transfers_output_dir};
+
+    erc721_transfers_file=${erc721_transfers_output_dir}/erc721_transfers_${file_name_suffix}.csv
+    log "Exporting ERC721 transfers from blocks ${block_range} to ${erc721_transfers_file}"
+    python3 ethereumetl export_erc721_transfers --start-block=${batch_start_block} --end-block=${batch_end_block} --provider-uri="${provider_uri}" --output=${erc721_transfers_file}
+    quit_if_returned_error
+
+    ### erc1155_transfers
+    # TODO
     erc721_transfers_output_dir=${output_dir}/erc721_transfers${partition_dir}
     mkdir -p ${erc721_transfers_output_dir};
 
