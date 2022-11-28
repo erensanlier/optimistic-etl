@@ -35,8 +35,7 @@ base_path = "../tests/resources/test_export_erc1155_transfers_job/block_with_tra
 logs = "web3_response.eth_getFilterLogs_0x0.json"
 uninstall_filter = "web3_response.eth_uninstallFilter_0x0.json"
 # TODO: This filter only applies to the single events, use partition to generate two different log files
-single_new_filter = f"web3_response.eth_newFilter_fromBlock_{hex(block_number)}_toBlock_{hex(block_number)}_topics_{TRANSFER_SINGLE_EVENT_TOPIC}.json"
-batch_new_filter = f"web3_response.eth_newFilter_fromBlock_{hex(block_number)}_toBlock_{hex(block_number)}_topics_{TRANSFER_BATCH_EVENT_TOPIC}.json"
+single_new_filter = f"web3_response.eth_newFilter_fromBlock_{hex(block_number)}_toBlock_{hex(block_number)}_topics_{TRANSFER_SINGLE_EVENT_TOPIC}_{TRANSFER_BATCH_EVENT_TOPIC}.json"
 expected_file = "expected_erc1155_transfers.csv"
 with open(base_path + logs, "w") as file:
     json_data = {
@@ -60,22 +59,14 @@ with open(base_path + single_new_filter, "w") as file:
     }
     json.dump(json_data, file, indent=4)
 
-with open(base_path + batch_new_filter, "w") as file:
-    json_data = {
-      "jsonrpc": "2.0",
-      "result": "0x0",
-      "id": 0
-    }
-    json.dump(json_data, file, indent=4)
-for i in range(2):
-    for receipt in points:
-        transfers =  EthERC1155TransferExtractor().extract_transfer_from_log(receipt)
-        # write the transfer to a csv file
-        with open(base_path + expected_file, 'a', newline='') as csvfile:
-            writer = csv.writer(csvfile, delimiter=',')
-            # write header
-            if csvfile.tell() == 0:
-                writer.writerow(['token_address', 'operator','from_address','to_address','id','value','transaction_hash','log_index', 'block_number'])
-            # for every transfer in transfers, write to csv
-            for transfer in transfers:
-                writer.writerow([transfer.token_address, transfer.operator, transfer.from_address,transfer.to_address,transfer.id,transfer.value,transfer.transaction_hash,transfer.log_index,transfer.block_number])
+for receipt in points:
+    transfers =  EthERC1155TransferExtractor().extract_transfer_from_log(receipt)
+    # write the transfer to a csv file
+    with open(base_path + expected_file, 'a', newline='') as csvfile:
+        writer = csv.writer(csvfile, delimiter=',')
+        # write header
+        if csvfile.tell() == 0:
+            writer.writerow(['token_address', 'operator','from_address','to_address','id','value','transaction_hash','log_index', 'block_number'])
+        # for every transfer in transfers, write to csv
+        for transfer in transfers:
+            writer.writerow([transfer.token_address, transfer.operator, transfer.from_address,transfer.to_address,transfer.id,transfer.value,transfer.transaction_hash,transfer.log_index,transfer.block_number])

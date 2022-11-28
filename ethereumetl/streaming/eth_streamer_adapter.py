@@ -13,7 +13,7 @@ from ethereumetl.jobs.extract_erc721_transfers_job import ExtractERC721Transfers
 from ethereumetl.jobs.extract_token_transfers_job import ExtractTokenTransfersJob
 from ethereumetl.jobs.extract_tokens_job import ExtractTokensJob
 from ethereumetl.streaming.enrich import enrich_transactions, enrich_logs, enrich_token_transfers, enrich_traces, \
-    enrich_contracts, enrich_tokens, enrich_erc20_transfers, enrich_erc721_transfers
+    enrich_contracts, enrich_tokens, enrich_erc20_transfers, enrich_erc721_transfers, enrich_erc1155_transfers
 from ethereumetl.streaming.eth_item_id_calculator import EthItemIdCalculator
 from ethereumetl.streaming.eth_item_timestamp_calculator import EthItemTimestampCalculator
 from ethereumetl.thread_local_proxy import ThreadLocalProxy
@@ -98,9 +98,11 @@ class EthStreamerAdapter:
         enriched_token_transfers = enrich_token_transfers(blocks, token_transfers) \
             if EntityType.TOKEN_TRANSFER in self.entity_types else []
         enriched_erc20_transfers = enrich_erc20_transfers(blocks, erc20_transfers) \
-            if EntityType.TOKEN_TRANSFER in self.entity_types else []
+            if EntityType.ERC20_TRANSFER in self.entity_types else []
         enriched_erc721_transfers = enrich_erc721_transfers(blocks, erc721_transfers) \
-            if EntityType.TOKEN_TRANSFER in self.entity_types else []
+            if EntityType.ERC721_TRANSFER in self.entity_types else []
+        enriched_erc1155_transfers = enrich_erc1155_transfers(blocks, erc1155_transfers) \
+            if EntityType.ERC1155_TRANSFER in self.entity_types else []
         enriched_traces = enrich_traces(blocks, traces) \
             if EntityType.TRACE in self.entity_types else []
         enriched_contracts = enrich_contracts(blocks, contracts) \
@@ -117,6 +119,7 @@ class EthStreamerAdapter:
             sort_by(enriched_token_transfers, ('block_number', 'log_index')) + \
             sort_by(enriched_erc20_transfers, ('block_number', 'log_index')) + \
             sort_by(enriched_erc721_transfers, ('block_number', 'log_index')) + \
+            sort_by(enriched_erc1155_transfers, ('block_number', 'log_index')) + \
             sort_by(enriched_traces, ('block_number', 'trace_index')) + \
             sort_by(enriched_contracts, ('block_number',)) + \
             sort_by(enriched_tokens, ('block_number',))
