@@ -23,6 +23,7 @@
 
 import logging
 from builtins import map
+import copy
 
 from ethereumetl.domain.erc1155_transfer import EthERC1155Transfer
 from ethereumetl.utils import chunk_string, hex_to_dec, to_normalized_address
@@ -63,8 +64,8 @@ class EthERC1155TransferExtractor(object):
             erc1155_transfer.log_index = receipt_log.log_index
             erc1155_transfer.block_number = receipt_log.block_number
             if (topics[0]).casefold() == TRANSFER_SINGLE_EVENT_TOPIC:
-                erc1155_transfer.ids = [hex_to_dec(topics_with_data[4])]
-                erc1155_transfer.values = [hex_to_dec(topics_with_data[5])]
+                erc1155_transfer.id = hex_to_dec(topics_with_data[4])
+                erc1155_transfer.value = hex_to_dec(topics_with_data[5])
                 return [erc1155_transfer]
             else: # by default this is a TransferBatch
                 # half of them token id's, remaining half how many of them have been transferred in the transaction
@@ -84,7 +85,7 @@ class EthERC1155TransferExtractor(object):
                     else:
                         total_transfer[pair[0]] = pair[1]
                 for key in total_transfer.keys():
-                    base_tx = erc1155_transfer
+                    base_tx = copy.deepcopy(erc1155_transfer)
                     base_tx.id = key
                     base_tx.value = total_transfer[key]
                     transactions.append(base_tx)

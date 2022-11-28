@@ -4,8 +4,8 @@ import csv
 
 from ethereumetl.service.erc1155_transfer_extractor import EthERC1155TransferExtractor
 transactions = [
-    "0x42c82ab046e89094e05bc67076ab512d3c816de70da2b1c21e9c19647a33690b", #TransferBatch with 4
-    "0x247e793635ff121dc2500564c7f9c81fbeb8063859428a77da46cc44f5cf515c", #TransferBatch with 1
+    "0x35adcfb1a1a69e3cae18c4b23cf30a62a3278aa704e32fe558b12c474a3f8d3e", #TransferBatch with 3 unique
+    "0x247e793635ff121dc2500564c7f9c81fbeb8063859428a77da46cc44f5cf515c", #TransferBatch with 1 unique
     "0xdb7f3b73eb17ea2ef818a1649c77c4f5b81451f564508f55667c58bf356a2816", #TransferSingle
 ]
 
@@ -38,7 +38,7 @@ def extract_log_data(receipts):
             topic_zero = (w3.toHex(log['topics'][0]))
             if topic_zero == TRANSFER_BATCH_EVENT_TOPIC or topic_zero == TRANSFER_SINGLE_EVENT_TOPIC:
                 receipt_log = EthReceiptLog()
-                receipt_log.address = log['address']
+                receipt_log.address = log['address'].lower()
                 receipt_log.log_index = log['logIndex']
                 receipt_log.block_number = log['blockNumber']
                 receipt_log.block_hash = w3.toHex(log['blockHash'])
@@ -52,21 +52,22 @@ def extract_log_data(receipts):
 
 receipts = extract_log_data(txs)
 #write receipts to a csv file
-with open('erc1155_txs.csv', 'w', newline='') as csvfile:
+with open('../tests/resources/test_extract_erc1155_transfers_job/logs/logs.csv', 'w', newline='') as csvfile:
     writer = csv.writer(csvfile, delimiter=',')
     writer.writerow(['log_index','transaction_hash','transaction_index','block_hash','block_number','address','data','topics'])
     for receipt in receipts:
-        writer.writerow([receipt.log_index,receipt.transaction_hash,receipt.transaction_index,receipt.block_hash,receipt.block_number,receipt.address,receipt.data,receipt.topics])
+        topic_string = ",".join([f"{str(topic)}" for topic in receipt.topics])
+        writer.writerow([receipt.log_index,receipt.transaction_hash,receipt.transaction_index,receipt.block_hash,receipt.block_number,receipt.address,receipt.data,topic_string])
 
 # process receipts with erc1155_transfers_item_exporter
 for receipt in receipts:
     transfers =  EthERC1155TransferExtractor().extract_transfer_from_log(receipt)
     # write the transfer to a csv file
-    with open('erc1155_transfers.csv', 'a', newline='') as csvfile:
+    with open('../tests/resources/test_extract_erc1155_transfers_job/logs/expected_erc1155_transfers.csv', 'a', newline='') as csvfile:
         writer = csv.writer(csvfile, delimiter=',')
         # write header
         if csvfile.tell() == 0:
-            writer.writerow(['token_address', 'operator','from_address','to_address','id','value','block_number','transaction_hash','log_index'])
+            writer.writerow(['token_address', 'operator','from_address','to_address','id','value','transaction_hash','log_index', 'block_number'])
         # for every transfer in transfers, write to csv
         for transfer in transfers:
-            writer.writerow([transfer.token_address, transfer.operator, transfer.token_address,transfer.from_address,transfer.to_address,transfer.id,transfer.value,transfer.block_number,transfer.transaction_hash,transfer.log_index])
+            writer.writerow([transfer.token_address, transfer.operator, transfer.from_address,transfer.to_address,transfer.id,transfer.value,transfer.transaction_hash,transfer.log_index,transfer.block_number])

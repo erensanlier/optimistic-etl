@@ -24,7 +24,7 @@ from ethereumetl.executors.batch_work_executor import BatchWorkExecutor
 from blockchainetl.jobs.base_job import BaseJob
 from ethereumetl.mappers.erc1155_transfer_mapper import EthERC1155TransferMapper
 from ethereumetl.mappers.receipt_log_mapper import EthReceiptLogMapper
-from ethereumetl.service.erc1155_transfer_extractor import EthERC1155TransferExtractor, TRANSFER_EVENT_TOPIC
+from ethereumetl.service.erc1155_transfer_extractor import EthERC1155TransferExtractor, TRANSFER_BATCH_EVENT_TOPIC, TRANSFER_SINGLE_EVENT_TOPIC
 from ethereumetl.utils import validate_range
 
 
@@ -66,33 +66,40 @@ class ExportERC1155TransfersJob(BaseJob):
     def _export_batch(self, block_number_batch):
         assert len(block_number_batch) > 0
         # https://github.com/ethereum/wiki/wiki/JSON-RPC#eth_getfilterlogs
-        filter_params = {
+        single_filter_params = {
             'fromBlock': block_number_batch[0],
             'toBlock': block_number_batch[-1],
-            'topics': [TRANSFER_EVENT_TOPIC]
+            'topics': [TRANSFER_SINGLE_EVENT_TOPIC]
         }
 
-        if self.tokens is not None and len(self.tokens) > 0:
-            filter_params['address'] = self.tokens
+        batch_filter_params = {
+            'fromBlock': block_number_batch[0],
+            'toBlock': block_number_batch[-1],
+            'topics': [TRANSFER_BATCH_EVENT_TOPIC]
+        }
 
-        try:
-            event_filter = self.web3.eth.filter(filter_params)
-            events = event_filter.get_all_entries()
-        except ValueError as e:
-            if str(e) == "{'code': -32000, 'message': 'the method is currently not implemented: eth_newFilter'}":
-                self._supports_eth_newFilter = False
-                events = self.web3.eth.getLogs(filter_params)
-            else:
-                raise(e)
-        for event in events:
-            log = self.receipt_log_mapper.web3_dict_to_receipt_log(event)
-            erc1155_transfers = self.erc1155_transfer_extractor.extract_transfer_from_log(log)
-            if erc1155_transfers is not None:
-                for transfer in erc1155_transfers:
-                    self.item_exporter.export_item(self.erc1155_transfer_mapper.erc1155_transfer_to_dict(transfer))
+        for filter_params in [single_filter_params, batch_filter_params]:
+            if self.tokens is not None and len(self.tokens) > 0:
+                filter_params['address'] = self.tokens
 
-        if self._supports_eth_newFilter:
-            self.web3.eth.uninstallFilter(event_filter.filter_id)
+            try:
+                event_filter = self.web3.eth.filter(filter_params)
+                events = event_filter.get_all_entries()
+            except ValueError as e:
+                if str(e) == "{'code': -32000, 'message': 'the method is currently not implemented: eth_newFilter'}":
+                    self._supports_eth_newFilter = False
+                    events = self.web3.eth.getLogs(filter_params)
+                else:
+                    raise(e)
+            for event in events:
+                log = self.receipt_log_mapper.web3_dict_to_receipt_log(event)
+                erc1155_transfers = self.erc1155_transfer_extractor.extract_transfer_from_log(log)
+                if erc1155_transfers is not None:
+                    for transfer in erc1155_transfers:
+                        self.item_exporter.export_item(self.erc1155_transfer_mapper.erc1155_transfer_to_dict(transfer))
+
+            if self._supports_eth_newFilter:
+                self.web3.eth.uninstallFilter(event_filter.filter_id)
 
     def _end(self):
         self.batch_work_executor.shutdown()

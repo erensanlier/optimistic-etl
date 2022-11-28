@@ -46,8 +46,8 @@ def test_extract_transfer_single_from_receipt_log():
     assert erc1155_transfer.operator == '0xab3e5a900663ea8c573b8f893d540d331fbab9f5'
     assert erc1155_transfer.from_address == '0x0000000000000000000000000000000000000000'
     assert erc1155_transfer.to_address == '0xab3e5a900663ea8c573b8f893d540d331fbab9f5'
-    assert erc1155_transfer.ids == [1]
-    assert erc1155_transfer.values == [20]
+    assert erc1155_transfer.id == 1
+    assert erc1155_transfer.value == 20
     assert erc1155_transfer.transaction_hash == '0xdb7f3b73eb17ea2ef818a1649c77c4f5b81451f564508f55667c58bf356a2816'
     assert erc1155_transfer.block_number == 11681009
 
