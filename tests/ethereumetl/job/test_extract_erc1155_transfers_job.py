@@ -52,7 +52,9 @@ def test_export_erc1155_transfers_job(tmpdir, resource_group):
         max_workers=5
     )
     job.run()
-
+    print(read_resource(resource_group, 'expected_erc1155_transfers.csv'))
+    print("\n")
+    print(read_file(output_file))
     compare_lines_ignore_order(
         read_resource(resource_group, 'expected_erc1155_transfers.csv'), read_file(output_file)
     )
