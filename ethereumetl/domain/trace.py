@@ -42,3 +42,5 @@ class EthTrace(object):
         self.status = None
         self.trace_id = None
         self.trace_index = None
+        # no code
+        # no refund address

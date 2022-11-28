@@ -252,10 +252,10 @@ class EthStreamerAdapter:
             return EntityType.TRANSACTION in self.entity_types or self._should_export(EntityType.LOG)
 
         if entity_type == EntityType.RECEIPT:
-            return EntityType.TRANSACTION in self.entity_types or self._should_export(EntityType.TOKEN_TRANSFER)
+            return EntityType.TRANSACTION in self.entity_types or self._should_export(EntityType.ERC1155_TRANSFER) or self._should_export(EntityType.ERC721_TRANSFER) or self._should_export(EntityType.ERC20_TRANSFER)
 
         if entity_type == EntityType.LOG:
-            return EntityType.LOG in self.entity_types or self._should_export(EntityType.TOKEN_TRANSFER)
+            return EntityType.LOG in self.entity_types or self._should_export(EntityType.ERC1155_TRANSFER) or self._should_export(EntityType.ERC721_TRANSFER) or self._should_export(EntityType.ERC20_TRANSFER)
 
         # if entity_type == EntityType.TOKEN_TRANSFER:
         #     return EntityType.TOKEN_TRANSFER in self.entity_types
