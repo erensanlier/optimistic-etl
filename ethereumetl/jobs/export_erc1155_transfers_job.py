@@ -78,6 +78,7 @@ class ExportERC1155TransfersJob(BaseJob):
             'topics': [TRANSFER_BATCH_EVENT_TOPIC]
         }
         # TODO: This causes a double export of the same transfer but we need two filters. Find a workaround.
+        # NOTE: Maybe this is not the problem, but the test setup is the actual problem
         for filter_params in [single_filter_params, batch_filter_params]:
             if self.tokens is not None and len(self.tokens) > 0:
                 filter_params['address'] = self.tokens
