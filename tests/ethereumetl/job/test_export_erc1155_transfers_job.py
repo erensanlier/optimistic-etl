@@ -33,13 +33,11 @@ from tests.helpers import compare_lines_ignore_order, read_file
 
 RESOURCE_GROUP = 'test_export_erc1155_transfers_job'
 
-
 def read_resource(resource_group, file_name):
     return tests.resources.read_resource([RESOURCE_GROUP, resource_group], file_name)
 
-
 @pytest.mark.parametrize("start_block,end_block,batch_size,resource_group,web3_provider_type", [
-    (483920, 483920, 1, 'block_with_transfers', 'mock')
+    (11093491, 11093491, 1, 'block_with_transfers', 'mock')
 ])
 def test_export_erc1155_transfers_job(tmpdir, start_block, end_block, batch_size, resource_group, web3_provider_type):
     output_file = str(tmpdir.join('erc1155_transfers.csv'))
