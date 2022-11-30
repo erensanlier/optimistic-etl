@@ -27,7 +27,7 @@ from sqlalchemy.dialects.postgresql import ARRAY
 metadata = MetaData()
 
 # SQL schema is here https://github.com/blockchain-etl/ethereum-etl-postgres/tree/master/schema
-
+# TODO: Add standard extensions here
 BLOCKS = Table(
     'blocks', metadata,
     Column('timestamp', TIMESTAMP),
@@ -144,10 +144,9 @@ TOKENS = Table(
 CONTRACTS = Table(
     'contracts', metadata,
     Column('address', VARCHAR(42)),
+    Column('deployer', VARCHAR(42)),
     Column('bytecode', String),
     Column('function_sighashes', ARRAY(String)),
-    Column('is_erc20', Boolean),
-    Column('is_erc721', Boolean),
     Column('block_number', BigInteger),
     PrimaryKeyConstraint('address', 'block_number', name='contracts_pk'),
 )
