@@ -92,7 +92,7 @@ class ExportERC1155TransfersJob(BaseJob):
                     self.item_exporter.export_item(self.erc1155_transfer_mapper.erc1155_transfer_to_dict(transfer))
 
         if self._supports_eth_newFilter:
-            self.web3.eth.uninstallFilter(event_filter.filter_id)
+            self.web3.eth.uninstall_filter(event_filter.filter_id)
 
     def _end(self):
         self.batch_work_executor.shutdown()
