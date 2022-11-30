@@ -257,10 +257,9 @@ def enrich_contracts(blocks, contracts):
         [
             'type',
             'address',
+            'deployer',
             'bytecode',
             'function_sighashes',
-            'is_erc20',
-            'is_erc721',
             'block_number'
         ],
         [

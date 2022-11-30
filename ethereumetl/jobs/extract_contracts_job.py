@@ -58,12 +58,13 @@ class ExtractContractsJob(BaseJob):
             trace['block_number'] = to_int_or_none(trace.get('block_number'))
 
         contract_creation_traces = [trace for trace in traces
-                                    if trace.get('trace_type') == 'create' and trace.get('to_address') is not None
+                                    if (trace.get('trace_type') == 'create' or trace.get('trace_type') == 'create2') and trace.get('to_address') is not None
                                     and len(trace.get('to_address')) > 0 and trace.get('status') == 1]
 
         contracts = []
         for trace in contract_creation_traces:
             contract = EthContract()
+            contract.deployer = trace.get('from_address')
             contract.address = trace.get('to_address')
             bytecode = trace.get('output')
             contract.bytecode = bytecode
@@ -72,8 +73,8 @@ class ExtractContractsJob(BaseJob):
             function_sighashes = self.contract_service.get_function_sighashes(bytecode)
 
             contract.function_sighashes = function_sighashes
-            contract.is_erc20 = self.contract_service.is_erc20_contract(function_sighashes)
-            contract.is_erc721 = self.contract_service.is_erc721_contract(function_sighashes)
+            # contract.is_erc20 = self.contract_service.is_erc20_contract(function_sighashes)
+            # contract.is_erc721 = self.contract_service.is_erc721_contract(function_sighashes)
 
             contracts.append(contract)
 

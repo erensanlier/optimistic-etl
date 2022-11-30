@@ -24,8 +24,11 @@
 class EthContract(object):
     def __init__(self):
         self.address = None
+        self.deployer = None
         self.bytecode = None
         self.function_sighashes = []
-        self.is_erc20 = False
-        self.is_erc721 = False
+        # self.is_erc20 = False
+        # self.is_erc721 = False
+        # TODO: This will be added in the future
+        # self.standard = None
         self.block_number = None
