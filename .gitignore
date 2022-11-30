@@ -60,5 +60,9 @@ scratchpad.ipynb
 
 #secrets
 secrets.yaml
-=======
+
+#ide
 .vscode
+.idea
+
+
