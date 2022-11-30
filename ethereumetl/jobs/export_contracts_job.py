@@ -79,8 +79,8 @@ class ExportContractsJob(BaseJob):
         function_sighashes = self.contract_service.get_function_sighashes(bytecode)
 
         contract.function_sighashes = function_sighashes
-        contract.is_erc20 = self.contract_service.is_erc20_contract(function_sighashes)
-        contract.is_erc721 = self.contract_service.is_erc721_contract(function_sighashes)
+        # contract.is_erc20 = self.contract_service.is_erc20_contract(function_sighashes)
+        # contract.is_erc721 = self.contract_service.is_erc721_contract(function_sighashes)
 
         return contract
 

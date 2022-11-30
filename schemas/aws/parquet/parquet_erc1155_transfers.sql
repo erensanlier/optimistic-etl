@@ -1,8 +1,10 @@
 CREATE EXTERNAL TABLE IF NOT EXISTS parquet_erc1155_transfers (
     token_address STRING,
+    operator STRING,
     from_address STRING,
     to_address STRING,
-    token_id DECIMAL(38,0),
+    id DECIMAL(38,0),
+    value DECIMAL(38,0),
     transaction_hash STRING,
     log_index BIGINT,
     block_number BIGINT

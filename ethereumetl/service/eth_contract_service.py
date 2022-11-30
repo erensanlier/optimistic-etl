@@ -41,7 +41,7 @@ class EthContractService:
                 return []
         else:
             return []
-
+    #  TODO: L44-71 will be deprecated in order to support various standards.
     # https://github.com/ethereum/EIPs/blob/master/EIPS/eip-20.md
     # https://github.com/OpenZeppelin/openzeppelin-solidity/blob/master/contracts/token/ERC20/ERC20.sol
     def is_erc20_contract(self, function_sighashes):

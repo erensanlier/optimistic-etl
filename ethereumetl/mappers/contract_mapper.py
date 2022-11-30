@@ -36,10 +36,9 @@ class EthContractMapper(object):
     def contract_to_dict(self, contract):
         return {
             'type': 'contract',
+            'deployer': contract.deployer,
             'address': contract.address,
             'bytecode': contract.bytecode,
             'function_sighashes': contract.function_sighashes,
-            'is_erc20': contract.is_erc20,
-            'is_erc721': contract.is_erc721,
             'block_number': contract.block_number
         }

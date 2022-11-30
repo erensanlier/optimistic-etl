@@ -1,9 +1,8 @@
 CREATE EXTERNAL TABLE IF NOT EXISTS contracts (
     address STRING,
+    deployer STRING,
     bytecode STRING,
     function_sighashes STRING,
-    is_erc20 BOOLEAN,
-    is_erc721 BOOLEAN
 )
 PARTITIONED BY (date STRING)
 ROW FORMAT SERDE 'org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe'
@@ -19,3 +18,6 @@ TBLPROPERTIES (
 );
 
 MSCK REPAIR TABLE contracts;
+
+
+
