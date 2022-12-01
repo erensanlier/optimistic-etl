@@ -22,7 +22,7 @@
 
 
 class EthERC721TransferMapper(object):
-    def erc721_transfer_to_dict(self, erc721_transfer):
+    def transfer_to_dict(self, erc721_transfer):
         return {
             'type': 'erc721_transfer',
             'token_address': erc721_transfer.token_address,

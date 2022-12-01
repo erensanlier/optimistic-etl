@@ -1,6 +1,6 @@
 # MIT License
 #
-# Copyright (c) 2018 Evgeny Medvedev, evge.medvedev@gmail.com
+# Copyright (c) 72118 Evgeny Medvedev, evge.medvedev@gmail.com
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -20,15 +20,12 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from ethereumetl.executors.batch_work_executor import BatchWorkExecutor
-from blockchainetl.jobs.base_job import BaseJob
+from ethereumetl.jobs.export_transfers_base_job import ExportTransfersBaseJob
 from ethereumetl.mappers.erc721_transfer_mapper import EthERC721TransferMapper
-from ethereumetl.mappers.receipt_log_mapper import EthReceiptLogMapper
 from ethereumetl.service.erc721_transfer_extractor import EthERC721TransferExtractor, TRANSFER_EVENT_TOPIC
-from ethereumetl.utils import validate_range
 
 
-class ExportERC721TransfersJob(BaseJob):
+class ExportERC721TransfersJob(ExportTransfersBaseJob):
     def __init__(
             self,
             start_block,
@@ -38,61 +35,13 @@ class ExportERC721TransfersJob(BaseJob):
             item_exporter,
             max_workers,
             tokens=None):
-        validate_range(start_block, end_block)
-        self.start_block = start_block
-        self.end_block = end_block
-
-        self.web3 = web3
-        self.tokens = tokens
-        self.item_exporter = item_exporter
-
-        self.batch_work_executor = BatchWorkExecutor(batch_size, max_workers)
-
-        self.receipt_log_mapper = EthReceiptLogMapper()
-        self.erc721_transfer_mapper = EthERC721TransferMapper()
-        self.erc721_transfer_extractor = EthERC721TransferExtractor()
-        self._supports_eth_newFilter = True
-
-    def _start(self):
-        self.item_exporter.open()
-
-    def _export(self):
-        self.batch_work_executor.execute(
-            range(self.start_block, self.end_block + 1),
-            self._export_batch,
-            total_items=self.end_block - self.start_block + 1
-        )
-
-    def _export_batch(self, block_number_batch):
-        assert len(block_number_batch) > 0
-        # https://github.com/ethereum/wiki/wiki/JSON-RPC#eth_getfilterlogs
-        filter_params = {
-            'fromBlock': block_number_batch[0],
-            'toBlock': block_number_batch[-1],
-            'topics': [TRANSFER_EVENT_TOPIC]
-        }
-
-        if self.tokens is not None and len(self.tokens) > 0:
-            filter_params['address'] = self.tokens
-
-        try:
-            event_filter = self.web3.eth.filter(filter_params)
-            events = event_filter.get_all_entries()
-        except ValueError as e:
-            if str(e) == "{'code': -32000, 'message': 'the method is currently not implemented: eth_newFilter'}":
-                self._supports_eth_newFilter = False
-                events = self.web3.eth.getLogs(filter_params)
-            else:
-                raise(e)
-        for event in events:
-            log = self.receipt_log_mapper.web3_dict_to_receipt_log(event)
-            erc721_transfer = self.erc721_transfer_extractor.extract_transfer_from_log(log)
-            if erc721_transfer is not None:
-                self.item_exporter.export_item(self.erc721_transfer_mapper.erc721_transfer_to_dict(erc721_transfer))
-
-        if self._supports_eth_newFilter:
-            self.web3.eth.uninstall_filter(event_filter.filter_id)
-
-    def _end(self):
-        self.batch_work_executor.shutdown()
-        self.item_exporter.close()
+        super().__init__(
+                start_block,
+                end_block,
+                batch_size,
+                web3,
+                item_exporter,
+                max_workers,
+                EthERC721TransferMapper,
+                EthERC721TransferExtractor,
+                TRANSFER_EVENT_TOPIC)
