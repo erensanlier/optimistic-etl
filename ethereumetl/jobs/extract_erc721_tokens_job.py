@@ -33,7 +33,6 @@ class ExtractERC721TokensJob(ExportTokensBaseJob):
         self.batch_work_executor.execute(self.contracts_iterable, self._export_tokens_from_contracts)
 
     def _export_tokens_from_contracts(self, contracts):
-        # TODO: Implement ERC* filters
         tokens = [contract for contract in contracts if contract.is_erc721()]
 
         for contract in tokens:

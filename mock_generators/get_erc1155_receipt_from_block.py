@@ -34,7 +34,6 @@ for receipt in receipts_with_relevant_logs:
 base_path = "../tests/resources/test_export_erc1155_transfers_job/block_with_transfers/"
 logs = "web3_response.eth_getFilterLogs_0x0.json"
 uninstall_filter = "web3_response.eth_uninstallFilter_0x0.json"
-# TODO: This filter only applies to the single events, use partition to generate two different log files
 single_new_filter = f"web3_response.eth_newFilter_fromBlock_{hex(block_number)}_toBlock_{hex(block_number)}_topics_{TRANSFER_SINGLE_EVENT_TOPIC}_{TRANSFER_BATCH_EVENT_TOPIC}.json"
 expected_file = "expected_erc1155_transfers.csv"
 with open(base_path + logs, "w") as file:

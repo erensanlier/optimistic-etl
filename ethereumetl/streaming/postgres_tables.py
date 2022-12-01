@@ -27,7 +27,6 @@ from sqlalchemy.dialects.postgresql import ARRAY
 metadata = MetaData()
 
 # SQL schema is here https://github.com/blockchain-etl/ethereum-etl-postgres/tree/master/schema
-# TODO: Add standard extensions here
 BLOCKS = Table(
     'blocks', metadata,
     Column('timestamp', TIMESTAMP),

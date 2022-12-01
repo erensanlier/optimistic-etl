@@ -32,7 +32,6 @@ FIELDS_TO_EXPORT = [
     'block_number'
 ]
 
-# TODO: Split this into three types
 def erc721_tokens_item_exporter(tokens_output, converters=()):
     return CompositeItemExporter(
         filename_mapping={

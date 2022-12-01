@@ -33,18 +33,7 @@ class ExtractTokensJob(ExportTokensJob):
         self.batch_work_executor.execute(self.contracts_iterable, self._export_tokens_from_contracts)
 
     def _export_tokens_from_contracts(self, contracts):
-        # TODO: Implement ERC* filters
-        tokens = [contract for contract in contracts]
-
-        for contract in contracts:
-            if contract.standard == 'ERC20':
-                self._export_erc20_token(token_address=contract['address'], block_number=contract['block_number'])
-            elif contract.standard == 'ERC721':
-                self._export_erc721_token(token_address=contract['address'], block_number=contract['block_number'])
-            elif contract.standard == 'ERC1155':
-                self._export_erc1155_token(token_address=contract['address'], block_number=contract['block_number'])
-            else:
-                self._export_token(token_address=contract['address'], block_number=contract['block_number'])
+        return None
 
 
 
