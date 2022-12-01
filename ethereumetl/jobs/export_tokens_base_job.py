@@ -31,7 +31,7 @@ class ExportTokensBaseJob(BaseJob):
         self.batch_work_executor = BatchWorkExecutor(1, max_workers)
 
         self.token_service = token_service(web3, clean_user_provided_content)
-        self.token_mapper = token_mapper
+        self.token_mapper = token_mapper()
 
     def _start(self):
         self.item_exporter.open()
@@ -46,7 +46,7 @@ class ExportTokensBaseJob(BaseJob):
     def _export_token(self, token_address, block_number=None):
         token = self.token_service.get_token(token_address)
         token.block_number = block_number
-        token_dict = self.token_mapper.token_to_dict(token)
+        token_dict = self.token_mapper.token_to_dict(token=token)
         self.item_exporter.export_item(token_dict)
 
     def _end(self):
