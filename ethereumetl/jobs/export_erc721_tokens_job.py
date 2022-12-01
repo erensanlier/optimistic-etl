@@ -21,25 +21,14 @@
 # SOFTWARE.
 
 
-from ethereumetl.domain.contract import EthContract
+from ethereumetl.jobs.export_tokens_base_job import ExportTokensBaseJob
+from ethereumetl.mappers.erc721_token_mapper import EthERC721TokenMapper
+from ethereumetl.service.eth_erc721_token_service import EthERC721TokenService
 
 
-class EthContractMapper(object):
+class ExportERC721TokensJob(ExportTokensBaseJob):
+    def __init__(self, web3, item_exporter, token_addresses_iterable, max_workers):
+        super().__init__(web3, item_exporter, token_addresses_iterable, max_workers, EthERC721TokenService, EthERC721TokenMapper)
 
-    def rpc_result_to_contract(self, contract_address, rpc_result):
-        contract = EthContract()
-        contract.address = contract_address
-        contract.bytecode = rpc_result
 
-        return contract
 
-    def contract_to_dict(self, contract):
-        return {
-            'type': 'contract',
-            'deployer': contract.deployer,
-            'address': contract.address,
-            'bytecode': contract.bytecode,
-            'function_sighashes': contract.function_sighashes,
-            'standard': contract.standard,
-            'block_number': contract.block_number
-        }

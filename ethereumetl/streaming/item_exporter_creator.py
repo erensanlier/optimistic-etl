@@ -22,6 +22,8 @@
 
 from blockchainetl.jobs.exporters.console_item_exporter import ConsoleItemExporter
 from blockchainetl.jobs.exporters.multi_item_exporter import MultiItemExporter
+from ethereumetl.streaming.postgres_tables import ERC20_TRANSFERS, ERC20_TOKENS, ERC721_TOKENS, ERC1155_TOKENS, \
+    ERC721_TRANSFERS, ERC1155_TRANSFERS
 
 
 def create_item_exporters(outputs):
@@ -42,9 +44,15 @@ def create_item_exporter(output):
                 'transaction': output + '.transactions',
                 'log': output + '.logs',
                 'token_transfer': output + '.token_transfers',
+                'erc20_token_transfer': output + '.erc20_token_transfers',
+                'erc721_token_transfer': output + '.erc721_token_transfers',
+                'erc1155_token_transfer': output + '.erc1155_token_transfers',
                 'trace': output + '.traces',
                 'contract': output + '.contracts',
                 'token': output + '.tokens',
+                'erc20_token': output + '.erc20_tokens',
+                'erc721_token': output + '.erc721_tokens',
+                'erc1155_token': output + '.erc1155_tokens'
             },
             message_attributes=('item_id', 'item_timestamp'),
             batch_max_bytes=1024 * 1024 * 5,
@@ -70,8 +78,14 @@ def create_item_exporter(output):
                 'transaction': create_insert_statement_for_table(TRANSACTIONS),
                 'log': create_insert_statement_for_table(LOGS),
                 'token_transfer': create_insert_statement_for_table(TOKEN_TRANSFERS),
+                'erc20_token_transfer': create_insert_statement_for_table(ERC20_TRANSFERS),
+                'erc721_token_transfer': create_insert_statement_for_table(ERC721_TRANSFERS),
+                'erc1155_token_transfer': create_insert_statement_for_table(ERC1155_TRANSFERS),
                 'trace': create_insert_statement_for_table(TRACES),
                 'token': create_insert_statement_for_table(TOKENS),
+                'erc20_token': create_insert_statement_for_table(ERC20_TOKENS),
+                'erc721_token': create_insert_statement_for_table(ERC721_TOKENS),
+                'erc1155_token': create_insert_statement_for_table(ERC1155_TOKENS),
                 'contract': create_insert_statement_for_table(CONTRACTS),
             },
             converters=[UnixTimestampItemConverter(), IntToDecimalItemConverter(),
@@ -89,9 +103,15 @@ def create_item_exporter(output):
             'transaction': 'transactions',
             'log': 'logs',
             'token_transfer': 'token_transfers',
+            'erc20_token_transfer' : 'erc20_token_transfers',
+            'erc721_token_transfer' : 'erc721_token_transfers',
+            'erc1155_token_transfer' : 'erc1155_token_transfers',
             'trace': 'traces',
             'contract': 'contracts',
             'token': 'tokens',
+            'erc20_token': 'erc20_tokens',
+            'erc721_token': 'erc721_tokens',
+            'erc1155_token': 'erc1155_tokens'
         })
 
     else:

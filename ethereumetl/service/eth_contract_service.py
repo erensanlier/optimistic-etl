@@ -41,7 +41,17 @@ class EthContractService:
                 return []
         else:
             return []
-    #  TODO: L44-71 will be deprecated in order to support various standards.
+
+    def detect_type(self, function_sighashes):
+        if self.is_erc20_contract(function_sighashes):
+            return 'ERC20'
+        elif self.is_erc721_contract(function_sighashes):
+            return 'ERC721'
+        elif self.is_erc1155_contract(function_sighashes):
+            return 'ERC1155'
+        else:
+            return "UNKNOWN"
+
     # https://github.com/ethereum/EIPs/blob/master/EIPS/eip-20.md
     # https://github.com/OpenZeppelin/openzeppelin-solidity/blob/master/contracts/token/ERC20/ERC20.sol
     def is_erc20_contract(self, function_sighashes):
@@ -68,6 +78,16 @@ class EthContractService:
                c.implements('ownerOf(uint256)') and \
                c.implements_any_of('transfer(address,uint256)', 'transferFrom(address,address,uint256)') and \
                c.implements('approve(address,uint256)')
+
+    # https://docs.openzeppelin.com/contracts/3.x/api/token/erc1155#IERC1155
+    def is_erc1155_contract(self, function_sighashes):
+        c = ContractWrapper(function_sighashes)
+        return c.implements('balanceOf(address,uint256)') and \
+               c.implements('balanceOfBatch(address[],uint256[])') and \
+               c.implements('setApprovalForAll(address,bool)') and \
+               c.implements('isApprovedForAll(address,address)') and \
+               c.implements('safeTransferFrom(address,address,uint256,uint256,bytes)') and \
+               c.implements('safeBatchTransferFrom(address,address,uint256[],uint256[],bytes)')
 
 
 def clean_bytecode(bytecode):

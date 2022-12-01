@@ -21,25 +21,7 @@
 # SOFTWARE.
 
 
-from ethereumetl.domain.contract import EthContract
-
-
-class EthContractMapper(object):
-
-    def rpc_result_to_contract(self, contract_address, rpc_result):
-        contract = EthContract()
-        contract.address = contract_address
-        contract.bytecode = rpc_result
-
-        return contract
-
-    def contract_to_dict(self, contract):
-        return {
-            'type': 'contract',
-            'deployer': contract.deployer,
-            'address': contract.address,
-            'bytecode': contract.bytecode,
-            'function_sighashes': contract.function_sighashes,
-            'standard': contract.standard,
-            'block_number': contract.block_number
-        }
+class EthERC1155Token(object):
+    def __init__(self):
+        self.address = None
+        self.block_number = None

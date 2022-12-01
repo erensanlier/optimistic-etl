@@ -19,27 +19,23 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+import logging
+
+from web3.exceptions import BadFunctionCallOutput, ContractLogicError
+
+from ethereumetl.domain.erc1155_token import EthERC1155Token
+from ethereumetl.erc1155_abi import ERC1155_ABI
+from ethereumetl.service.eth_base_token_service import EthBaseTokenService
+
+logger = logging.getLogger('eth_token_service')
 
 
-from ethereumetl.domain.contract import EthContract
+class EthERC1155TokenService(EthBaseTokenService):
+    def __init__(self, web3, function_call_result_transformer=None):
+        self.__init__(web3, function_call_result_transformer)
 
+    def get_token(self, token_address):
+        token = EthERC1155Token()
+        token.address = token_address
 
-class EthContractMapper(object):
-
-    def rpc_result_to_contract(self, contract_address, rpc_result):
-        contract = EthContract()
-        contract.address = contract_address
-        contract.bytecode = rpc_result
-
-        return contract
-
-    def contract_to_dict(self, contract):
-        return {
-            'type': 'contract',
-            'deployer': contract.deployer,
-            'address': contract.address,
-            'bytecode': contract.bytecode,
-            'function_sighashes': contract.function_sighashes,
-            'standard': contract.standard,
-            'block_number': contract.block_number
-        }
+        return token
