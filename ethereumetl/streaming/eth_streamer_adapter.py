@@ -10,7 +10,9 @@ from ethereumetl.jobs.extract_contracts_job import ExtractContractsJob
 from ethereumetl.jobs.extract_erc1155_transfers_job import ExtractERC1155TransfersJob
 from ethereumetl.jobs.extract_erc20_tokens_job import ExtractERC20TokensJob
 from ethereumetl.jobs.extract_erc20_transfers_job import ExtractERC20TransfersJob
+from ethereumetl.jobs.extract_erc721_tokens_job import ExtractERC721TokensJob
 from ethereumetl.jobs.extract_erc721_transfers_job import ExtractERC721TransfersJob
+from ethereumetl.jobs.extract_erc_1155_tokens_job import ExtractERC1155TokensJob
 from ethereumetl.jobs.extract_token_transfers_job import ExtractTokenTransfersJob
 from ethereumetl.jobs.extract_tokens_job import ExtractTokensJob
 from ethereumetl.streaming.enrich import enrich_transactions, enrich_logs, enrich_traces, \
@@ -121,15 +123,14 @@ class EthStreamerAdapter:
             if EntityType.TRACE in self.entity_types else []
         enriched_contracts = enrich_contracts(blocks, contracts) \
             if EntityType.CONTRACT in self.entity_types else []
-        enriched_tokens = enrich_tokens(blocks, tokens) \
-            if EntityType.TOKEN in self.entity_types else []
         enriched_erc20_tokens = enrich_erc20_tokens(blocks, erc20_tokens) \
             if EntityType.ERC20_TRANSFER in self.entity_types else []
         enriched_erc721_tokens = enrich_erc721_tokens(blocks, erc721_tokens) \
             if EntityType.ERC721_TRANSFER in self.entity_types else []
         enriched_erc1155_tokens = enrich_erc1155_tokens(blocks, erc1155_tokens) \
             if EntityType.ERC1155_TRANSFER in self.entity_types else []
-
+        # enriched_tokens = enrich_tokens(blocks, tokens) \
+        #     if EntityType.TOKEN in self.entity_types else []
         logging.info('Exporting with ' + type(self.item_exporter).__name__)
 
         all_items = \
@@ -141,12 +142,11 @@ class EthStreamerAdapter:
             sort_by(enriched_erc1155_transfers, ('block_number', 'log_index')) + \
             sort_by(enriched_traces, ('block_number', 'trace_index')) + \
             sort_by(enriched_contracts, ('block_number',)) + \
-            sort_by(enriched_tokens, ('block_number',)) + \
             sort_by(enriched_erc20_tokens, ('block_number', 'log_index')) + \
             sort_by(enriched_erc721_tokens, ('block_number', 'log_index')) + \
             sort_by(enriched_erc1155_tokens, ('block_number', 'log_index'))
             # sort_by(enriched_token_transfers, ('block_number', 'log_index')) + \
-
+            # sort_by(enriched_tokens, ('block_number',)) + \
         self.calculate_item_ids(all_items)
         self.calculate_item_timestamps(all_items)
 
@@ -290,7 +290,7 @@ class EthStreamerAdapter:
         return tokens
     def _extract_erc721_tokens(self, contracts):
         exporter = InMemoryItemExporter(item_types=['erc721_token'])
-        job = ExtractERC20TokensJob(
+        job = ExtractERC721TokensJob(
             contracts_iterable=contracts,
             web3=ThreadLocalProxy(lambda: build_web3(self.batch_web3_provider)),
             max_workers=self.max_workers,
@@ -301,7 +301,7 @@ class EthStreamerAdapter:
         return tokens
     def _extract_erc1155_tokens(self, contracts):
         exporter = InMemoryItemExporter(item_types=['erc1155_token'])
-        job = ExtractERC20TokensJob(
+        job = ExtractERC1155TokensJob(
             contracts_iterable=contracts,
             web3=ThreadLocalProxy(lambda: build_web3(self.batch_web3_provider)),
             max_workers=self.max_workers,
