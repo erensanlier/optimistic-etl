@@ -21,25 +21,14 @@
 # SOFTWARE.
 
 
-from ethereumetl.domain.contract import EthContract
-
-
-class EthContractMapper(object):
-
-    def rpc_result_to_contract(self, contract_address, rpc_result):
-        contract = EthContract()
-        contract.address = contract_address
-        contract.bytecode = rpc_result
-
-        return contract
-
-    def contract_to_dict(self, contract):
+class EthERC721TokenMapper(object):
+    def token_to_dict(self, token):
         return {
-            'type': 'contract',
-            'deployer': contract.deployer,
-            'address': contract.address,
-            'bytecode': contract.bytecode,
-            'function_sighashes': contract.function_sighashes,
-            'standard': contract.standard,
-            'block_number': contract.block_number
+            'type': 'erc721_token',
+            'address': token.address,
+            'symbol': token.symbol,
+            'name': token.name,
+            'decimals': token.decimals,
+            'total_supply': token.total_supply,
+            'block_number': token.block_number
         }

@@ -1,10 +1,9 @@
-CREATE EXTERNAL TABLE IF NOT EXISTS contracts (
+CREATE EXTERNAL TABLE IF NOT EXISTS erc1155_tokens
+(
     address STRING,
-    deployer STRING,
-    bytecode STRING,
-    function_sighashes STRING,
-    standard STRING
+    uri     STRING
 )
+
 PARTITIONED BY (date STRING)
 ROW FORMAT SERDE 'org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe'
 WITH SERDEPROPERTIES (
@@ -13,12 +12,9 @@ WITH SERDEPROPERTIES (
     'escape.delim' = '\\'
 )
 STORED AS TEXTFILE
-LOCATION 's3://<your_bucket>/ethereumetl/export/contracts'
+LOCATION 's3://<your_bucket>/ethereumetl/export/tokens'
 TBLPROPERTIES (
   'skip.header.line.count' = '1'
 );
 
-MSCK REPAIR TABLE contracts;
-
-
-
+MSCK REPAIR TABLE erc1155_tokens;

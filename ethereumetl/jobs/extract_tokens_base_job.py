@@ -19,27 +19,21 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+from ethereumetl.jobs.export_tokens_base_job import ExportTokensBaseJob
 
 
-from ethereumetl.domain.contract import EthContract
+class ExtractTokensBaseJob(ExportTokensBaseJob):
+    def __init__(self, web3, item_exporter, contracts_iterable, max_workers, token_service, token_mapper):
+        super().__init__(web3, item_exporter, [], max_workers, token_service, token_mapper)
+        self.contracts_iterable = contracts_iterable
+
+    def _export(self):
+        self.batch_work_executor.execute(self.contracts_iterable, self._export_tokens_from_contracts)
+
+    def _export_tokens_from_contracts(self, contracts):
+        for contract in contracts:
+            self._export_token(token_address=contract['address'], block_number=contract['block_number'])
 
 
-class EthContractMapper(object):
 
-    def rpc_result_to_contract(self, contract_address, rpc_result):
-        contract = EthContract()
-        contract.address = contract_address
-        contract.bytecode = rpc_result
 
-        return contract
-
-    def contract_to_dict(self, contract):
-        return {
-            'type': 'contract',
-            'deployer': contract.deployer,
-            'address': contract.address,
-            'bytecode': contract.bytecode,
-            'function_sighashes': contract.function_sighashes,
-            'standard': contract.standard,
-            'block_number': contract.block_number
-        }

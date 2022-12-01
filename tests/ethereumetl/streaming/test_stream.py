@@ -41,10 +41,10 @@ def read_resource(resource_group, file_name):
 
 
 @pytest.mark.parametrize("start_block, end_block, batch_size, resource_group, entity_types, provider_type", [
-    (1755634, 1755635, 1, 'blocks_1755634_1755635', EntityType.ALL_FOR_INFURA, 'mock'),
-    skip_if_slow_tests_disabled([1755634, 1755635, 1, 'blocks_1755634_1755635', EntityType.ALL_FOR_INFURA, 'infura']),
-    (508110, 508110, 1, 'blocks_508110_508110', ['trace', 'contract', 'token', 'erc20_transfer','erc721_transfer'], 'mock'),
-    (2112234, 2112234, 1, 'blocks_2112234_2112234', ['trace', 'contract', 'token', 'erc20_transfer','erc721_transfer'], 'mock'),
+    (1755634, 1755635, 1, 'blocks_1755634_1755635', ['block', 'transaction', 'log'], 'mock'),
+    (1755634, 1755635, 1, 'blocks_1755634_1755635', ['block', 'trace', 'transaction', 'log'], 'infura'),
+    (508110, 508110, 1, 'blocks_508110_508110', ['trace', 'contract'], 'mock'),
+    (2112234, 2112234, 1, 'blocks_2112234_2112234', ['trace', 'contract'], 'mock'),
 ])
 def test_stream(tmpdir, start_block, end_block, batch_size, resource_group, entity_types, provider_type):
     try:
@@ -155,9 +155,9 @@ def test_stream(tmpdir, start_block, end_block, batch_size, resource_group, enti
             read_resource(resource_group, 'expected_contracts.json'), read_file(contracts_output_file)
         )
 
-    if 'token' in entity_types:
-        print('=====================')
-        print(read_file(tokens_output_file))
-        compare_lines_ignore_order(
-            read_resource(resource_group, 'expected_tokens.json'), read_file(tokens_output_file)
-        )
+    # if 'token' in entity_types:
+    #     print('=====================')
+    #     print(read_file(tokens_output_file))
+    #     compare_lines_ignore_order(
+    #         read_resource(resource_group, 'expected_tokens.json'), read_file(tokens_output_file)
+    #     )

@@ -27,8 +27,5 @@ class EthContract(object):
         self.deployer = None
         self.bytecode = None
         self.function_sighashes = []
-        # self.is_erc20 = False
-        # self.is_erc721 = False
-        # TODO: This will be added in the future
-        # self.standard = None
+        self.standard = None
         self.block_number = None

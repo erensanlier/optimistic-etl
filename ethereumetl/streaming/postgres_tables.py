@@ -105,6 +105,47 @@ TOKEN_TRANSFERS = Table(
     Column('block_hash', String),
 )
 
+ERC20_TRANSFERS = Table(
+    'erc20_token_transfers', metadata,
+    Column('token_address', String),
+    Column('from_address', String),
+    Column('to_address', String),
+    Column('value', Numeric(78)),
+    Column('transaction_hash', String, primary_key=True),
+    Column('log_index', BigInteger, primary_key=True),
+    Column('block_timestamp', TIMESTAMP),
+    Column('block_number', BigInteger),
+    Column('block_hash', String),
+)
+
+ERC721_TRANSFERS = Table(
+    'erc721_token_transfers', metadata,
+    Column('token_address', String),
+    Column('from_address', String),
+    Column('to_address', String),
+    Column('token_id', Numeric(78)),
+    Column('transaction_hash', String, primary_key=True),
+    Column('log_index', BigInteger, primary_key=True),
+    Column('block_timestamp', TIMESTAMP),
+    Column('block_number', BigInteger),
+    Column('block_hash', String),
+)
+
+ERC1155_TRANSFERS = Table(
+    'erc1155_token_transfers', metadata,
+    Column('token_address', String),
+    Column('operator', String),
+    Column('from_address', String),
+    Column('to_address', String),
+    Column('id', Numeric(78)),
+    Column('value', Numeric(78)),
+    Column('transaction_hash', String, primary_key=True),
+    Column('log_index', BigInteger, primary_key=True),
+    Column('block_timestamp', TIMESTAMP),
+    Column('block_number', BigInteger),
+    Column('block_hash', String),
+)
+
 TRACES = Table(
     'traces', metadata,
     Column('transaction_hash', String),
@@ -137,6 +178,38 @@ TOKENS = Table(
     Column('decimals', Integer),
     Column('function_sighashes', ARRAY(String)),
     Column('total_supply', Numeric(78)),
+    Column('block_number', BigInteger),
+    PrimaryKeyConstraint('address', 'block_number', name='tokens_pk'),
+)
+
+ERC20_TOKENS = Table(
+    'tokens', metadata,
+    Column('address', VARCHAR(42)),
+    Column('name', String),
+    Column('symbol', String),
+    Column('decimals', Integer),
+    Column('function_sighashes', ARRAY(String)),
+    Column('total_supply', Numeric(78)),
+    Column('block_number', BigInteger),
+    PrimaryKeyConstraint('address', 'block_number', name='tokens_pk'),
+)
+
+ERC721_TOKENS = Table(
+    'tokens', metadata,
+    Column('address', VARCHAR(42)),
+    Column('name', String),
+    Column('symbol', String),
+    Column('decimals', Integer),
+    Column('function_sighashes', ARRAY(String)),
+    Column('total_supply', Numeric(78)),
+    Column('block_number', BigInteger),
+    PrimaryKeyConstraint('address', 'block_number', name='tokens_pk'),
+)
+
+ERC1155_TOKENS = Table(
+    'tokens', metadata,
+    Column('address', VARCHAR(42)),
+    Column('function_sighashes', ARRAY(String)),
     Column('block_number', BigInteger),
     PrimaryKeyConstraint('address', 'block_number', name='tokens_pk'),
 )
