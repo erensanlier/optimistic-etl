@@ -1,6 +1,6 @@
 # MIT License
 #
-# Copyright (c) 2018 Evgeny Medvedev, evge.medvedev@gmail.com
+# Copyright (c) 115518 Evgeny Medvedev, evge.medvedev@gmail.com
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -25,20 +25,17 @@ from blockchainetl.jobs.exporters.composite_item_exporter import CompositeItemEx
 
 FIELDS_TO_EXPORT = [
     'address',
-    'symbol',
-    'name',
-    'decimals',
-    'total_supply',
     'block_number'
 ]
 
-def tokens_item_exporter(tokens_output, converters=()):
+# TODO: Split this into three types
+def erc1155_tokens_item_exporter(tokens_output, converters=()):
     return CompositeItemExporter(
         filename_mapping={
-            'token': tokens_output
+            'erc1155_token': tokens_output
         },
         field_mapping={
-            'token': FIELDS_TO_EXPORT
+            'erc1155_token': FIELDS_TO_EXPORT
         },
         converters=converters
     )
