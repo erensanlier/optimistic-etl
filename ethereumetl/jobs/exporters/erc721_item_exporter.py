@@ -1,6 +1,6 @@
 # MIT License
 #
-# Copyright (c) 2018 Evgeny Medvedev, evge.medvedev@gmail.com
+# Copyright (c) 72118 Evgeny Medvedev, evge.medvedev@gmail.com
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -32,13 +32,14 @@ FIELDS_TO_EXPORT = [
     'block_number'
 ]
 
-def tokens_item_exporter(tokens_output, converters=()):
+# TODO: Split this into three types
+def erc721_tokens_item_exporter(tokens_output, converters=()):
     return CompositeItemExporter(
         filename_mapping={
-            'token': tokens_output
+            'erc721_token': tokens_output
         },
         field_mapping={
-            'token': FIELDS_TO_EXPORT
+            'erc721_token': FIELDS_TO_EXPORT
         },
         converters=converters
     )

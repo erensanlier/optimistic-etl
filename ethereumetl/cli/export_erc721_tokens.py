@@ -24,6 +24,7 @@
 import click
 
 from ethereumetl.jobs.export_erc721_tokens_job import ExportERC721TokensJob
+from ethereumetl.jobs.exporters.erc721_item_exporter import erc721_tokens_item_exporter
 from ethereumetl.web3_utils import build_web3
 
 from blockchainetl.file_utils import smart_open
@@ -53,7 +54,7 @@ def export_erc721_tokens(token_addresses, output, max_workers, provider_uri, cha
         job = ExportERC721TokensJob(
             token_addresses_iterable=(token_address.strip() for token_address in token_addresses_file),
             web3=ThreadLocalProxy(lambda: build_web3(get_provider_from_uri(provider_uri))),
-            item_exporter=tokens_item_exporter(output),
+            item_exporter=erc721_tokens_item_exporter(output),
             max_workers=max_workers)
 
         job.run()

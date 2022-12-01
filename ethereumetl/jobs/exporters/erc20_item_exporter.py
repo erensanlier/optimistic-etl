@@ -32,13 +32,14 @@ FIELDS_TO_EXPORT = [
     'block_number'
 ]
 
-def tokens_item_exporter(tokens_output, converters=()):
+# TODO: Split this into three types
+def erc20_tokens_item_exporter(tokens_output, converters=()):
     return CompositeItemExporter(
         filename_mapping={
-            'token': tokens_output
+            'erc20_token': tokens_output
         },
         field_mapping={
-            'token': FIELDS_TO_EXPORT
+            'erc20_token': FIELDS_TO_EXPORT
         },
         converters=converters
     )
