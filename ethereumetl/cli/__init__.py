@@ -21,6 +21,13 @@
 # SOFTWARE.
 
 from blockchainetl.logging_utils import logging_basic_config
+from ethereumetl.cli.export_erc1155_tokens import export_erc1155_tokens
+from ethereumetl.cli.export_erc20_tokens import export_erc20_tokens
+from ethereumetl.cli.export_erc721_tokens import export_erc721_tokens
+from ethereumetl.cli.extract_erc1155_tokens import extract_erc1155_tokens
+from ethereumetl.cli.extract_erc20_tokens import extract_erc20_tokens
+from ethereumetl.cli.extract_erc721_tokens import extract_erc721_tokens
+
 logging_basic_config()
 
 import click
@@ -65,8 +72,16 @@ cli.add_command(export_all, "export_all")
 cli.add_command(export_blocks_and_transactions, "export_blocks_and_transactions")
 cli.add_command(export_origin, "export_origin")
 cli.add_command(export_receipts_and_logs, "export_receipts_and_logs")
-cli.add_command(export_token_transfers, "export_token_transfers")
-cli.add_command(extract_token_transfers, "extract_token_transfers")
+
+# cli.add_command(export_token_transfers, "export_token_transfers")
+cli.add_command(extract_erc20_tokens, "extract_erc20_tokens")
+cli.add_command(export_erc20_tokens, "export_erc20_tokens")
+cli.add_command(extract_erc721_tokens, "extract_erc721_tokens")
+cli.add_command(export_erc721_tokens, "export_erc721_tokens")
+cli.add_command(extract_erc1155_tokens, "extract_erc1155_tokens")
+cli.add_command(export_erc1155_tokens, "export_erc1155_tokens")
+
+# cli.add_command(extract_token_transfers, "extract_token_transfers")
 cli.add_command(export_erc20_transfers, "export_erc20_transfers")
 cli.add_command(extract_erc20_transfers, "extract_erc20_transfers")
 cli.add_command(export_erc721_transfers, "export_erc721_transfers")
@@ -74,12 +89,13 @@ cli.add_command(extract_erc721_transfers, "extract_erc721_transfers")
 cli.add_command(export_erc1155_transfers, "export_erc1155_transfers")
 cli.add_command(extract_erc1155_transfers, "extract_erc1155_transfers")
 cli.add_command(export_contracts, "export_contracts")
-cli.add_command(export_tokens, "export_tokens")
+
+# cli.add_command(export_tokens, "export_tokens")
 cli.add_command(export_traces, "export_traces")
 cli.add_command(export_geth_traces, "export_geth_traces")
 cli.add_command(extract_geth_traces, "extract_geth_traces")
 cli.add_command(extract_contracts, "extract_contracts")
-cli.add_command(extract_tokens, "extract_tokens")
+# cli.add_command(extract_tokens, "extract_tokens")
 
 # streaming
 cli.add_command(stream, "stream")
