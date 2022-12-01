@@ -182,7 +182,7 @@ TOKENS = Table(
 )
 
 ERC20_TOKENS = Table(
-    'tokens', metadata,
+    'erc20_tokens', metadata,
     Column('address', VARCHAR(42)),
     Column('name', String),
     Column('symbol', String),
@@ -194,7 +194,7 @@ ERC20_TOKENS = Table(
 )
 
 ERC721_TOKENS = Table(
-    'tokens', metadata,
+    'erc721_tokens', metadata,
     Column('address', VARCHAR(42)),
     Column('name', String),
     Column('symbol', String),
@@ -206,7 +206,7 @@ ERC721_TOKENS = Table(
 )
 
 ERC1155_TOKENS = Table(
-    'tokens', metadata,
+    'erc1155_tokens', metadata,
     Column('address', VARCHAR(42)),
     Column('function_sighashes', ARRAY(String)),
     Column('block_number', BigInteger),

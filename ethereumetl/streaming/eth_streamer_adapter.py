@@ -12,7 +12,7 @@ from ethereumetl.jobs.extract_erc20_tokens_job import ExtractERC20TokensJob
 from ethereumetl.jobs.extract_erc20_transfers_job import ExtractERC20TransfersJob
 from ethereumetl.jobs.extract_erc721_tokens_job import ExtractERC721TokensJob
 from ethereumetl.jobs.extract_erc721_transfers_job import ExtractERC721TransfersJob
-from ethereumetl.jobs.extract_erc_1155_tokens_job import ExtractERC1155TokensJob
+from ethereumetl.jobs.extract_erc1155_tokens_job import ExtractERC1155TokensJob
 from ethereumetl.jobs.extract_token_transfers_job import ExtractTokenTransfersJob
 from ethereumetl.jobs.extract_tokens_job import ExtractTokensJob
 from ethereumetl.streaming.enrich import enrich_transactions, enrich_logs, enrich_traces, \
@@ -124,11 +124,11 @@ class EthStreamerAdapter:
         enriched_contracts = enrich_contracts(blocks, contracts) \
             if EntityType.CONTRACT in self.entity_types else []
         enriched_erc20_tokens = enrich_erc20_tokens(blocks, erc20_tokens) \
-            if EntityType.ERC20_TRANSFER in self.entity_types else []
+            if EntityType.ERC20_TOKEN in self.entity_types else []
         enriched_erc721_tokens = enrich_erc721_tokens(blocks, erc721_tokens) \
-            if EntityType.ERC721_TRANSFER in self.entity_types else []
+            if EntityType.ERC721_TOKEN in self.entity_types else []
         enriched_erc1155_tokens = enrich_erc1155_tokens(blocks, erc1155_tokens) \
-            if EntityType.ERC1155_TRANSFER in self.entity_types else []
+            if EntityType.ERC1155_TOKEN in self.entity_types else []
         # enriched_tokens = enrich_tokens(blocks, tokens) \
         #     if EntityType.TOKEN in self.entity_types else []
         logging.info('Exporting with ' + type(self.item_exporter).__name__)
