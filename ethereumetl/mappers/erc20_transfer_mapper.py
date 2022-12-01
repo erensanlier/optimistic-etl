@@ -22,7 +22,7 @@
 
 
 class EthERC20TransferMapper(object):
-    def erc20_transfer_to_dict(self, erc20_transfer):
+    def transfer_to_dict(self, erc20_transfer):
         return {
             'type': 'erc20_transfer',
             'token_address': erc20_transfer.token_address,

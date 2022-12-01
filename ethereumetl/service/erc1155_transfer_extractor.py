@@ -26,6 +26,7 @@ from builtins import map
 import copy
 
 from ethereumetl.domain.erc1155_transfer import EthERC1155Transfer
+from ethereumetl.service.eth_base_transfer_extractor import EthBaseTransferExtractor
 from ethereumetl.utils import chunk_string, hex_to_dec, to_normalized_address
 
 # https://ethereum.stackexchange.com/questions/12553/understanding-logs-and-log-blooms
@@ -35,7 +36,7 @@ TRANSFER_BATCH_EVENT_TOPIC = '0x4a39dc06d4c0dbc64b70af90fd698a233a518aa5d07e595d
 logger = logging.getLogger(__name__)
 
 
-class EthERC1155TransferExtractor(object):
+class EthERC1155TransferExtractor(EthBaseTransferExtractor):
     def extract_transfer_from_log(self, receipt_log):
 
         topics = receipt_log.topics

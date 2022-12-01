@@ -20,28 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from ethereumetl.jobs.export_transfers_base_job import ExportTransfersBaseJob
-from ethereumetl.mappers.erc1155_transfer_mapper import EthERC1155TransferMapper
-from ethereumetl.service.erc1155_transfer_extractor import EthERC1155TransferExtractor, TRANSFER_BATCH_EVENT_TOPIC, TRANSFER_SINGLE_EVENT_TOPIC
 
-
-class ExportERC1155TransfersJob(ExportTransfersBaseJob):
-    def __init__(
-            self,
-            start_block,
-            end_block,
-            batch_size,
-            web3,
-            item_exporter,
-            max_workers,
-            tokens=None):
-        super().__init__(
-                start_block,
-                end_block,
-                batch_size,
-                web3,
-                item_exporter,
-                max_workers,
-                EthERC1155TransferMapper,
-                EthERC1155TransferExtractor,
-                [TRANSFER_SINGLE_EVENT_TOPIC, TRANSFER_BATCH_EVENT_TOPIC])
+class EthBaseTransferExtractor(object):
+    def extract_transfer_from_log(self, receipt_log):
+        return None
