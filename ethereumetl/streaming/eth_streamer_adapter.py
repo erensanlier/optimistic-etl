@@ -100,7 +100,7 @@ class EthStreamerAdapter:
             erc721_tokens = self._extract_tokens(contracts)
 
         erc1155_tokens = []
-        if self._should_export(EntityType.ERC1155_TRANSFER):
+        if self._should_export(EntityType.ERC1155_TOKEN):
             erc1155_tokens = self._extract_tokens(contracts)
 
         enriched_blocks = blocks \
