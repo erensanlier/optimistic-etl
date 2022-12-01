@@ -37,26 +37,24 @@ class EthERC721TokenService(EthBaseTokenService):
 
         symbol = self._get_first_result(
             contract.functions.symbol(),
-            contract.functions.SYMBOL(),
         )
         if isinstance(symbol, bytes):
             symbol = self._bytes_to_string(symbol)
 
         name = self._get_first_result(
             contract.functions.name(),
-            contract.functions.NAME(),
         )
         if isinstance(name, bytes):
             name = self._bytes_to_string(name)
 
-        decimals = self._get_first_result(contract.functions.decimals(), contract.functions.DECIMALS())
         total_supply = self._get_first_result(contract.functions.totalSupply())
+        base_uri = self._get_first_result(contract.functions.baseURI())
 
         token = EthERC721Token()
         token.address = token_address
         token.symbol = symbol
         token.name = name
-        token.decimals = decimals
+        token.base_uri = base_uri
         token.total_supply = total_supply
 
         return token

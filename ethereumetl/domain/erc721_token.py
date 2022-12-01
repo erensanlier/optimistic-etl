@@ -26,7 +26,6 @@ class EthERC721Token(object):
         self.address = None
         self.symbol = None
         self.name = None
-        self.decimals = None
         self.base_uri = None
         self.total_supply = None
         self.block_number = None
