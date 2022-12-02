@@ -21,6 +21,7 @@
 # SOFTWARE.
 from ethereumetl.jobs.export_tokens_base_job import ExportTokensBaseJob
 from ethereumetl.mappers.erc20_token_mapper import EthERC20TokenMapper
+from ethereumetl.service.eth_contract_service import EthContractService
 from ethereumetl.service.eth_erc20_token_service import EthERC20TokenService
 
 
@@ -33,8 +34,8 @@ class ExtractERC20TokensJob(ExportTokensBaseJob):
         self.batch_work_executor.execute(self.contracts_iterable, self._export_tokens_from_contracts)
 
     def _export_tokens_from_contracts(self, contracts):
-        # TODO: Implement ERC* filters
-        tokens = [contract for contract in contracts if contract.is_erc20()]
+        contract_service = EthContractService()
+        tokens = [contract for contract in contracts if contract_service.is_erc20_contract(contract['function_sighashes'])]
 
         for contract in tokens:
             self._export_token(token_address=contract['address'], block_number=contract['block_number'])

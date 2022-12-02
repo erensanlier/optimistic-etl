@@ -46,7 +46,7 @@ class ExportTokensBaseJob(BaseJob):
     def _export_token(self, token_address, block_number=None):
         token = self.token_service.get_token(token_address)
         token.block_number = block_number
-        token_dict = self.token_mapper.token_to_dict(token=token)
+        token_dict = self.token_mapper.token_to_dict(token)
         self.item_exporter.export_item(token_dict)
 
     def _end(self):
