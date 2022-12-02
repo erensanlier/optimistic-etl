@@ -27,7 +27,7 @@ FIELDS_TO_EXPORT = [
     'address',
     'symbol',
     'name',
-    'decimals',
+    'base_uri',
     'total_supply',
     'block_number'
 ]

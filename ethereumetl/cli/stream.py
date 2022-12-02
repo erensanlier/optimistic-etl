@@ -34,7 +34,7 @@ from ethereumetl.thread_local_proxy import ThreadLocalProxy
 @click.command(context_settings=dict(help_option_names=['-h', '--help']))
 @click.option('-l', '--last-synced-block-file', default='last_synced_block.txt', show_default=True, type=str, help='')
 @click.option('--lag', default=0, show_default=True, type=int, help='The number of blocks to lag behind the network.')
-@click.option('-p', '--provider-uri', default='https://mainnet.infura.io', show_default=True, type=str,
+@click.option('-p', '--provider-uri', default=' https://eth-mainnet.g.alchemy.com/v2/KTKsgoGvYRWevH6HiQh2IUafPsovQD4b', show_default=True, type=str,
               help='The URI of the web3 provider e.g. '
                    'file://$HOME/Library/Ethereum/geth.ipc or https://mainnet.infura.io')
 @click.option('-o', '--output', type=str,
@@ -44,7 +44,7 @@ from ethereumetl.thread_local_proxy import ThreadLocalProxy
                    'or kafka, output name and connection host:port e.g. kafka/127.0.0.1:9092 '
                    'or Kinesis, e.g. kinesis://your-data-stream-name'
                    'If not specified will print to console')
-@click.option('-s', '--start-block', default=None, show_default=True, type=int, help='Start block')
+@click.option('-s', '--start-block', default=12287507, show_default=True, type=int, help='Start block')
 @click.option('-e', '--entity-types', default=','.join(EntityType.ALL_FOR_INFURA), show_default=True, type=str,
               help='The list of entity types to export.')
 @click.option('--period-seconds', default=10, show_default=True, type=int, help='How many seconds to sleep between syncs')
@@ -58,7 +58,7 @@ def stream(last_synced_block_file, lag, provider_uri, output, start_block, entit
     """Streams all data types to console or Google Pub/Sub."""
     configure_logging(log_file)
     configure_signals()
-    entity_types = parse_entity_types(entity_types)
+    entity_types = parse_entity_types('erc20_token,erc721_token,erc1155_token')
 
     from ethereumetl.streaming.eth_streamer_adapter import EthStreamerAdapter
     from blockchainetl.streaming.streamer import Streamer
@@ -102,3 +102,7 @@ def parse_entity_types(entity_types):
 def pick_random_provider_uri(provider_uri):
     provider_uris = [uri.strip() for uri in provider_uri.split(',')]
     return random.choice(provider_uris)
+
+
+if __name__ == '__main__':
+    stream()

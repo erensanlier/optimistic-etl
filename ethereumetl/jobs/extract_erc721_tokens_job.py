@@ -21,6 +21,7 @@
 # SOFTWARE.
 from ethereumetl.jobs.export_tokens_base_job import ExportTokensBaseJob
 from ethereumetl.mappers.erc721_token_mapper import EthERC721TokenMapper
+from ethereumetl.service.eth_contract_service import EthContractService
 from ethereumetl.service.eth_erc721_token_service import EthERC721TokenService
 
 
@@ -33,9 +34,8 @@ class ExtractERC721TokensJob(ExportTokensBaseJob):
         self.batch_work_executor.execute(self.contracts_iterable, self._export_tokens_from_contracts)
 
     def _export_tokens_from_contracts(self, contracts):
-        tokens = [contract for contract in contracts if contract.is_erc721()]
+        contract_service = EthContractService()
+        tokens = [contract for contract in contracts if contract_service.is_erc721_contract(contract['function_sighashes'])]
 
         for contract in tokens:
             self._export_token(token_address=contract['address'], block_number=contract['block_number'])
-
-

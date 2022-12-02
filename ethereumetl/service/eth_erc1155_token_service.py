@@ -32,7 +32,7 @@ logger = logging.getLogger('eth_token_service')
 
 class EthERC1155TokenService(EthBaseTokenService):
     def __init__(self, web3, function_call_result_transformer=None):
-        self.__init__(web3, function_call_result_transformer)
+        super().__init__(web3, function_call_result_transformer)
 
     def get_token(self, token_address):
         token = EthERC1155Token()

@@ -1,6 +1,6 @@
 # MIT License
 #
-# Copyright (c) 2018 Evgeny Medvedev, evge.medvedev@gmail.com
+# Copyright (c) 72118 Evgeny Medvedev, evge.medvedev@gmail.com
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -22,6 +22,9 @@
 
 
 import pytest
+
+from ethereumetl.jobs.export_erc721_tokens_job import ExportERC721TokensJob
+from ethereumetl.jobs.exporters.erc721_item_exporter import erc721_tokens_item_exporter
 from ethereumetl.web3_utils import build_web3
 
 import tests.resources
@@ -31,7 +34,7 @@ from ethereumetl.thread_local_proxy import ThreadLocalProxy
 from tests.ethereumetl.job.helpers import get_web3_provider
 from tests.helpers import compare_lines_ignore_order, read_file, skip_if_slow_tests_disabled
 
-RESOURCE_GROUP = 'test_export_tokens_job'
+RESOURCE_GROUP = 'test_export_erc721_tokens_job'
 
 
 def read_resource(resource_group, file_name):
@@ -39,25 +42,25 @@ def read_resource(resource_group, file_name):
 
 
 @pytest.mark.parametrize("token_addresses,resource_group,web3_provider_type", [
-    (['0xf763be8b3263c268e9789abfb3934564a7b80054'], 'token_with_invalid_data', 'mock'),
+    (['0xbc4ca0eda7647a8ab7c2061c2e118a18a936f13d'], 'token', 'mock'),
     (['0x86fa049857e0209aa7d9e616f7eb3b3b78ecfdb0'], 'token_with_alternative_return_type', 'mock'),
     skip_if_slow_tests_disabled(
         (['0x86fa049857e0209aa7d9e616f7eb3b3b78ecfdb0'], 'token_with_alternative_return_type', 'infura')
     )
 ])
-def test_export_tokens_job(tmpdir, token_addresses, resource_group, web3_provider_type):
-    output_file = str(tmpdir.join('tokens.csv'))
+def test_export_erc721_tokens_job(tmpdir, token_addresses, resource_group, web3_provider_type):
+    output_file = str(tmpdir.join('erc721_tokens.csv'))
 
-    job = ExportTokensJob(
+    job = ExportERC721TokensJob(
         token_addresses_iterable=token_addresses,
         web3=ThreadLocalProxy(
             lambda: build_web3(get_web3_provider(web3_provider_type, lambda file: read_resource(resource_group, file)))
         ),
-        item_exporter=tokens_item_exporter(output_file),
+        item_exporter=erc721_tokens_item_exporter(output_file),
         max_workers=5
     )
     job.run()
 
     compare_lines_ignore_order(
-        read_resource(resource_group, 'expected_erc20_tokens.csv'), read_file(output_file)
+        read_resource(resource_group, 'expected_erc721_tokens.csv'), read_file(output_file)
     )

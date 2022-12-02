@@ -28,7 +28,7 @@ class EthERC721TokenMapper(object):
             'address': token.address,
             'symbol': token.symbol,
             'name': token.name,
-            'decimals': token.decimals,
+            'base_uri': token.base_uri,
             'total_supply': token.total_supply,
             'block_number': token.block_number
         }
