@@ -58,7 +58,7 @@ def stream(last_synced_block_file, lag, provider_uri, output, start_block, entit
     """Streams all data types to console or Google Pub/Sub."""
     configure_logging(log_file)
     configure_signals()
-    entity_types = parse_entity_types('erc20_token,erc721_token,erc1155_token')
+    entity_types = parse_entity_types(entity_types)
 
     from ethereumetl.streaming.eth_streamer_adapter import EthStreamerAdapter
     from blockchainetl.streaming.streamer import Streamer
