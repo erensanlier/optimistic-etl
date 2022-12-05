@@ -8,19 +8,25 @@ from blockchainetl.jobs.exporters.converters.composite_item_converter import Com
 
 
 class KafkaItemExporter:
-
+    # TODO: Add support for multiple broker endpoints
     def __init__(self, output, item_type_to_topic_mapping, converters=()):
         self.item_type_to_topic_mapping = item_type_to_topic_mapping
         self.converter = CompositeItemConverter(converters)
-        self.connection_url = self.get_connection_url(output)
-        print(self.connection_url)
-        self.producer = KafkaProducer(bootstrap_servers=self.connection_url)
+        self.connection_urls = self.get_connection_url(output)
+        if self.connection_urls is not None:
+            print(self.connection_urls)
+            self.producer = KafkaProducer(bootstrap_servers=self.connection_urls)
+        else:
+            raise Exception('Invalid ')
 
     def get_connection_url(self, output):
+        servers = []
         try:
-            return output.split('/')[1]
-        except KeyError:
-            raise Exception('Invalid kafka output param, It should be in format of "kafka/127.0.0.1:9092"')
+            for endpoint in output.split('/')[1].split(';'):
+                servers.append(endpoint)
+        except Exception as e:
+            raise Exception('Invalid kafka output param, It should be in format of "kafka/127.0.0.1:9092;122.0.0.1:9092"')
+        return servers if len(servers) > 0 else None
 
     def open(self):
         pass

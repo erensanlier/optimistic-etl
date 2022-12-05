@@ -34,7 +34,7 @@ from ethereumetl.thread_local_proxy import ThreadLocalProxy
 @click.command(context_settings=dict(help_option_names=['-h', '--help']))
 @click.option('-l', '--last-synced-block-file', default='last_synced_block.txt', show_default=True, type=str, help='')
 @click.option('--lag', default=0, show_default=True, type=int, help='The number of blocks to lag behind the network.')
-@click.option('-p', '--provider-uri', default=' https://eth-mainnet.g.alchemy.com/v2/KTKsgoGvYRWevH6HiQh2IUafPsovQD4b', show_default=True, type=str,
+@click.option('-p', '--provider-uri', default='<PROVIDER_URI>', show_default=True, type=str,
               help='The URI of the web3 provider e.g. '
                    'file://$HOME/Library/Ethereum/geth.ipc or https://mainnet.infura.io')
 @click.option('-o', '--output', type=str,
