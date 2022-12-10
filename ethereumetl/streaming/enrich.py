@@ -195,7 +195,7 @@ def enrich_erc1155_transfers(blocks, erc1155_transfers):
         [
             'type',
             'token_address',
-            'operator'
+            'operator',
             'from_address',
             'to_address',
             'id',

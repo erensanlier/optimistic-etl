@@ -93,7 +93,6 @@ class EthERC1155TransferExtractor(EthBaseTransferExtractor):
                 return transactions
         return None
 
-
 def split_to_words(data):
     if data and len(data) > 2:
         data_without_0x = data[2:]
