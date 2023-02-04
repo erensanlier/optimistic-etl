@@ -37,3 +37,6 @@ class EthTransaction(object):
         self.max_fee_per_gas = None
         self.max_priority_fee_per_gas = None
         self.transaction_type = None
+        self.l1_timestamp = None
+        self.l1_block_number = None
+        self.l1_tx_origin = None

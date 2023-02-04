@@ -110,6 +110,7 @@ class EthStreamerAdapter:
 
         enriched_blocks = blocks \
             if EntityType.BLOCK in self.entity_types else []
+        # Added L1 enrichments
         enriched_transactions = enrich_transactions(transactions, receipts) \
             if EntityType.TRANSACTION in self.entity_types else []
         enriched_logs = enrich_logs(blocks, logs) \
