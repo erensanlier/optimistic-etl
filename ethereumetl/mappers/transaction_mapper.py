@@ -44,7 +44,7 @@ class EthTransactionMapper(object):
         transaction.max_priority_fee_per_gas = hex_to_dec(json_dict.get('maxPriorityFeePerGas'))
         transaction.transaction_type = hex_to_dec(json_dict.get('type'))
         # L1 fields
-        transaction.l1_timestamp = json_dict.get('l1Timestamp')
+        transaction.l1_timestamp = hex_to_dec(json_dict.get('l1Timestamp'))
         transaction.l1_block_number = hex_to_dec(json_dict.get('l1BlockNumber'))
         transaction.l1_tx_origin = json_dict.get('queueOrigin')
         return transaction
@@ -68,7 +68,7 @@ class EthTransactionMapper(object):
             'max_priority_fee_per_gas': transaction.max_priority_fee_per_gas,
             'transaction_type': transaction.transaction_type,
             # L1 fields
-            'l1_timestamp': hex_to_dec(transaction.l1_timestamp),
+            'l1_timestamp': transaction.l1_timestamp,
             'l1_block_number': transaction.l1_block_number,
             'l1_tx_origin': transaction.l1_tx_origin
         }

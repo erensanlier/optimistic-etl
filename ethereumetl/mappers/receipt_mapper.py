@@ -53,7 +53,7 @@ class EthReceiptMapper(object):
         # L1 attributes
         receipt.l1_gas_used = hex_to_dec(json_dict.get('l1GasUsed'))
         receipt.l1_gas_price = hex_to_dec(json_dict.get('l1GasPrice'))
-        receipt.l1_fee_scalar = hex_to_dec(json_dict.get('l1FeeScalar'))
+        receipt.l1_fee_scalar = int(json_dict.get('l1FeeScalar'))
         receipt.l1_fee = hex_to_dec(json_dict.get('l1Fee'))
 
         if 'logs' in json_dict:
