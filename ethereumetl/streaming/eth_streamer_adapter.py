@@ -6,6 +6,7 @@ from ethereumetl.enumeration.entity_type import EntityType
 from ethereumetl.jobs.export_blocks_job import ExportBlocksJob
 from ethereumetl.jobs.export_receipts_job import ExportReceiptsJob
 from ethereumetl.jobs.export_traces_job import ExportTracesJob
+from ethereumetl.jobs.export_geth_traces_job import ExportGethTracesJob
 from ethereumetl.jobs.extract_contracts_job import ExtractContractsJob
 from ethereumetl.jobs.extract_erc1155_transfers_job import ExtractERC1155TransfersJob
 from ethereumetl.jobs.extract_erc20_tokens_job import ExtractERC20TokensJob
@@ -27,11 +28,13 @@ from ethereumetl.web3_utils import build_web3
 class EthStreamerAdapter:
     def __init__(
             self,
+            web3_provider,
             batch_web3_provider,
             item_exporter=ConsoleItemExporter(),
             batch_size=100,
             max_workers=5,
             entity_types=tuple(EntityType.ALL_FOR_STREAMING)):
+        self.web3_provider = web3_provider
         self.batch_web3_provider = batch_web3_provider
         self.item_exporter = item_exporter
         self.batch_size = batch_size
@@ -78,10 +81,10 @@ class EthStreamerAdapter:
         if self._should_export(EntityType.ERC1155_TRANSFER):
             erc1155_transfers = self._export_erc1155_transfers(logs)
 
-        # Export traces
+        # Export traces (but geth for Optimism)
         traces = []
         if self._should_export(EntityType.TRACE):
-            traces = self._export_traces(start_block, end_block)
+            traces = self._export_geth_traces(transactions)
 
         # Export contracts
         contracts = []
@@ -243,6 +246,19 @@ class EthStreamerAdapter:
         traces = exporter.get_items('trace')
         return traces
 
+    def _export_geth_traces(self, transactions):
+        exporter = InMemoryItemExporter(item_types=['trace'])
+        job = ExportGethTracesJob(
+            transactions_iterable=transactions,
+            batch_size=self.batch_size,
+            web3_provider=self.web3_provider,
+            max_workers=self.max_workers,
+            item_exporter=exporter
+        )
+        job.run()
+        traces = exporter.get_items('trace')
+        return traces
+
     def _export_contracts(self, traces):
         exporter = InMemoryItemExporter(item_types=['contract'])
         job = ExtractContractsJob(
@@ -308,7 +324,8 @@ class EthStreamerAdapter:
             return True
 
         if entity_type == EntityType.TRANSACTION:
-            return EntityType.TRANSACTION in self.entity_types or self._should_export(EntityType.LOG)
+            return EntityType.TRANSACTION in self.entity_types or self._should_export(EntityType.LOG) \
+                   or self._should_export(EntityType.TRACE)
 
         if entity_type == EntityType.RECEIPT:
             return EntityType.TRANSACTION in self.entity_types or self._should_export(

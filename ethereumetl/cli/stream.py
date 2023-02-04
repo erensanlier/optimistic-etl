@@ -69,6 +69,7 @@ def stream(last_synced_block_file, lag, provider_uri, output, start_block, end_b
     logging.info('Using ' + provider_uri)
 
     streamer_adapter = EthStreamerAdapter(
+        web3_provider=ThreadLocalProxy(lambda: get_provider_from_uri(provider_uri, batch=False)),
         batch_web3_provider=ThreadLocalProxy(lambda: get_provider_from_uri(provider_uri, batch=True)),
         item_exporter=create_item_exporters(output),
         batch_size=batch_size,

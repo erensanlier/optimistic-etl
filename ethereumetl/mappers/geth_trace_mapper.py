@@ -19,9 +19,11 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-
+import json
 
 from ethereumetl.domain.geth_trace import EthGethTrace
+from ethereumetl.domain.trace import EthTrace
+from ethereumetl.utils import to_normalized_address, hex_to_dec
 
 
 class EthGethTraceMapper(object):
@@ -39,3 +41,61 @@ class EthGethTraceMapper(object):
             'block_number': geth_trace.block_number,
             'transaction_traces': geth_trace.transaction_traces,
         }
+
+    def geth_trace_to_trace_list(self, geth_trace, block_transactions, parent_type=None, trace_address=None,
+                                 transaction=None):
+
+        for tx_index, tx_trace in enumerate(geth_trace.transaction_traces):
+
+            trace = EthTrace()
+
+            if not transaction:
+                transaction = next((item for item in block_transactions if item['transaction_index'] == tx_index), None)
+
+            trace.block_number = geth_trace.block_number
+            trace.transaction_hash = transaction['hash']
+            trace.transaction_index = transaction['transaction_index']
+            trace.subtraces = len(tx_trace.get("calls", []))
+
+            error = tx_trace.get('error')
+            if error:
+                trace.error = error
+
+            trace_type = tx_trace.get('type')
+
+            if trace_type:
+                trace.call_type = trace_type.lower()
+
+            if parent_type:
+                trace.trace_type = parent_type.lower()
+            else:
+                trace.trace_type = trace_type.lower()
+
+            trace.from_address = to_normalized_address(tx_trace.get('from'))
+            trace.value = hex_to_dec(tx_trace.get('value'))
+            trace.gas = hex_to_dec(tx_trace.get('gas'))
+            trace.gas_used = hex_to_dec(tx_trace.get('gasUsed'))
+
+            trace.to_address = to_normalized_address(tx_trace.get('to'))
+            trace.input = tx_trace.get('input')
+            trace.output = tx_trace.get('output')
+
+            if trace_address is None:
+                trace_address = []
+                nested_trace_address = []
+            else:
+                nested_trace_address = trace_address + [tx_index]
+
+            trace.trace_address = nested_trace_address
+
+            calls = tx_trace.get("calls", [])
+
+            yield trace
+
+            nested_geth_trace = self.json_dict_to_geth_trace({
+                'block_number': geth_trace.block_number,
+                'transaction_traces': calls,
+            })
+
+            yield from self.geth_trace_to_trace_list(nested_geth_trace, [], trace.trace_type,
+                                                     nested_trace_address, transaction)

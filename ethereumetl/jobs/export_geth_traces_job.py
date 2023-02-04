@@ -23,27 +23,30 @@
 import json
 
 from ethereumetl.executors.batch_work_executor import BatchWorkExecutor
-from ethereumetl.json_rpc_requests import generate_trace_block_by_number_json_rpc
+from ethereumetl.jobs.export_traces_job import calculate_trace_indexes
+from ethereumetl.json_rpc_requests import generate_geth_trace_block_by_number_json_rpc
 from blockchainetl.jobs.base_job import BaseJob
 from ethereumetl.mappers.geth_trace_mapper import EthGethTraceMapper
+from ethereumetl.mappers.trace_mapper import EthTraceMapper
+from ethereumetl.service.trace_id_calculator import calculate_trace_ids
+from ethereumetl.service.trace_status_calculator import calculate_trace_statuses
 from ethereumetl.utils import validate_range, rpc_response_to_result
+from collections import defaultdict
 
 
 # Exports geth traces
 class ExportGethTracesJob(BaseJob):
     def __init__(
             self,
-            start_block,
-            end_block,
+            transactions_iterable,
             batch_size,
-            batch_web3_provider,
+            web3_provider,
             max_workers,
             item_exporter):
-        validate_range(start_block, end_block)
-        self.start_block = start_block
-        self.end_block = end_block
+        self.trace_mapper = EthTraceMapper()
+        self.transactions_iterable = transactions_iterable
 
-        self.batch_web3_provider = batch_web3_provider
+        self.web3_provider = web3_provider
 
         self.batch_work_executor = BatchWorkExecutor(batch_size, max_workers)
         self.item_exporter = item_exporter
@@ -55,25 +58,51 @@ class ExportGethTracesJob(BaseJob):
 
     def _export(self):
         self.batch_work_executor.execute(
-            range(self.start_block, self.end_block + 1),
+            self.transactions_iterable,
             self._export_batch,
-            total_items=self.end_block - self.start_block + 1
         )
 
-    def _export_batch(self, block_number_batch):
-        trace_block_rpc = list(generate_trace_block_by_number_json_rpc(block_number_batch))
-        response = self.batch_web3_provider.make_batch_request(json.dumps(trace_block_rpc))
+    def _export_batch(self, transactions):
+        # TODO: Change to len(block_number_batch) > 0 when this issue is fixed
+        # print(transactions)
 
-        for response_item in response:
-            block_number = response_item.get('id')
-            result = rpc_response_to_result(response_item)
+        def group_by_key(arr, key):
+            groups = defaultdict(list)
+            for item in arr:
+                groups[item[key]].append(item)
+            return dict(groups)
 
+        grouped_transactions = group_by_key(transactions, 'block_number')
+
+        all_traces = []
+
+        for block_number, block_transactions in grouped_transactions.items():
+            trace_block_rpc = generate_geth_trace_block_by_number_json_rpc(block_number)
+            response = self.web3_provider.make_request(method=trace_block_rpc['method'],
+                                                       params=trace_block_rpc['params'])
+            result = rpc_response_to_result(response)
             geth_trace = self.geth_trace_mapper.json_dict_to_geth_trace({
                 'block_number': block_number,
                 'transaction_traces': [tx_trace.get('result') for tx_trace in result],
             })
 
-            self.item_exporter.export_item(self.geth_trace_mapper.geth_trace_to_dict(geth_trace))
+            traces = self.geth_trace_mapper.geth_trace_to_trace_list(geth_trace, block_transactions)
+            all_traces.extend(traces)
+
+        calculate_trace_statuses(all_traces)
+        calculate_trace_ids(all_traces)
+        calculate_trace_indexes(all_traces)
+        
+        for trace in all_traces:
+            self.item_exporter.export_item(self.trace_mapper.trace_to_dict(trace))
+
+        # print("Result:")
+        # print(result)
+
+        # print("Geth Trace:")
+        # traces = self.geth_trace_mapper.geth_trace_to_dict(geth_trace)
+        # print(traces)
+        # self.item_exporter.export_item(traces)
 
     def _end(self):
         self.batch_work_executor.shutdown()
