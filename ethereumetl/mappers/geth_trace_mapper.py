@@ -42,60 +42,50 @@ class EthGethTraceMapper(object):
             'transaction_traces': geth_trace.transaction_traces,
         }
 
-    def geth_trace_to_trace_list(self, geth_trace, block_transactions, parent_type=None, trace_address=None,
-                                 transaction=None):
+    def geth_trace_to_trace_list(self, geth_trace, transaction, parent_type=None, trace_address=None):
 
-        for tx_index, tx_trace in enumerate(geth_trace.transaction_traces):
+        trace = EthTrace()
 
-            trace = EthTrace()
+        trace.block_number = transaction['block_number']
+        trace.transaction_hash = transaction['hash']
+        trace.transaction_index = transaction['transaction_index']
+        trace.subtraces = len(geth_trace.get("calls", []))
 
-            if not transaction:
-                transaction = next((item for item in block_transactions if item['transaction_index'] == tx_index), None)
+        error = geth_trace.get('error')
+        if error:
+            trace.error = error
 
-            trace.block_number = geth_trace.block_number
-            trace.transaction_hash = transaction['hash']
-            trace.transaction_index = transaction['transaction_index']
-            trace.subtraces = len(tx_trace.get("calls", []))
+        trace_type = geth_trace.get('type')
 
-            error = tx_trace.get('error')
-            if error:
-                trace.error = error
+        if trace_type:
+            trace.call_type = trace_type.lower()
 
-            trace_type = tx_trace.get('type')
+        if parent_type:
+            trace.trace_type = parent_type.lower()
+        else:
+            trace.trace_type = trace_type.lower()
 
-            if trace_type:
-                trace.call_type = trace_type.lower()
+        trace.from_address = to_normalized_address(geth_trace.get('from'))
+        trace.value = hex_to_dec(geth_trace.get('value'))
+        trace.gas = hex_to_dec(geth_trace.get('gas'))
+        trace.gas_used = hex_to_dec(geth_trace.get('gasUsed'))
 
-            if parent_type:
-                trace.trace_type = parent_type.lower()
-            else:
-                trace.trace_type = trace_type.lower()
+        trace.to_address = to_normalized_address(geth_trace.get('to'))
+        trace.input = geth_trace.get('input')
+        trace.output = geth_trace.get('output')
 
-            trace.from_address = to_normalized_address(tx_trace.get('from'))
-            trace.value = hex_to_dec(tx_trace.get('value'))
-            trace.gas = hex_to_dec(tx_trace.get('gas'))
-            trace.gas_used = hex_to_dec(tx_trace.get('gasUsed'))
+        if trace_address is None:
+            trace_address = []
+            nested_trace_address = []
+        else:
+            nested_trace_address = trace_address
 
-            trace.to_address = to_normalized_address(tx_trace.get('to'))
-            trace.input = tx_trace.get('input')
-            trace.output = tx_trace.get('output')
+        trace.trace_address = nested_trace_address
 
-            if trace_address is None:
-                trace_address = []
-                nested_trace_address = []
-            else:
-                nested_trace_address = trace_address + [tx_index]
+        calls = geth_trace.get("calls", [])
 
-            trace.trace_address = nested_trace_address
+        yield trace
 
-            calls = tx_trace.get("calls", [])
-
-            yield trace
-
-            nested_geth_trace = self.json_dict_to_geth_trace({
-                'block_number': geth_trace.block_number,
-                'transaction_traces': calls,
-            })
-
-            yield from self.geth_trace_to_trace_list(nested_geth_trace, [], trace.trace_type,
-                                                     nested_trace_address, transaction)
+        for idx, call in enumerate(calls):
+            yield from self.geth_trace_to_trace_list(call, transaction, trace.trace_type,
+                                                     nested_trace_address if trace_address is None else nested_trace_address + [idx])
