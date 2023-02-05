@@ -252,7 +252,7 @@ class EthStreamerAdapter:
         job = ExportGethTracesJob(
             transactions_iterable=transactions,
             batch_size=self.batch_size,
-            web3_provider=self.web3_provider,
+            batch_web3_provider=self.batch_web3_provider,
             max_workers=self.max_workers,
             item_exporter=exporter
         )

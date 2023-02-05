@@ -40,13 +40,22 @@ def generate_trace_block_by_number_json_rpc(block_numbers):
         )
 
 
-def generate_geth_trace_block_by_number_json_rpc(block_number):
-    return dict(
-        method='debug_traceBlockByNumber',
-        params=[hex(block_number), {'tracer': 'callTracer'}],
-        # save block_number in request ID, so later we can identify block number in response
-        request_id=block_number,
-    )
+# def generate_geth_trace_block_by_number_json_rpc(block_number):
+#     return dict(
+#         method='debug_traceBlockByNumber',
+#         params=[hex(block_number), {'tracer': 'callTracer'}],
+#         # save block_number in request ID, so later we can identify block number in response
+#         request_id=block_number,
+#     )
+
+def generate_geth_trace_block_by_number_json_rpc(block_numbers):
+    for block_number in block_numbers:
+        yield generate_json_rpc(
+            method='debug_traceBlockByNumber',
+            params=[hex(block_number), {'tracer': 'callTracer'}],
+            # save block_number in request ID, so later we can identify block number in response
+            request_id=block_number,
+        )
 
 
 

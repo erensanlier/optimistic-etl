@@ -40,13 +40,13 @@ class ExportGethTracesJob(BaseJob):
             self,
             transactions_iterable,
             batch_size,
-            web3_provider,
+            batch_web3_provider,
             max_workers,
             item_exporter):
         self.trace_mapper = EthTraceMapper()
         self.transactions_iterable = transactions_iterable
 
-        self.web3_provider = web3_provider
+        self.batch_web3_provider = batch_web3_provider
 
         self.batch_work_executor = BatchWorkExecutor(batch_size, max_workers)
         self.item_exporter = item_exporter
@@ -64,7 +64,6 @@ class ExportGethTracesJob(BaseJob):
 
     def _export_batch(self, transactions):
         # TODO: Change to len(block_number_batch) > 0 when this issue is fixed
-        # print(transactions)
 
         def group_by_key(arr, key):
             groups = defaultdict(list)
@@ -74,19 +73,20 @@ class ExportGethTracesJob(BaseJob):
 
         grouped_transactions = group_by_key(transactions, 'block_number')
 
+        trace_block_rpc = list(generate_geth_trace_block_by_number_json_rpc(grouped_transactions.keys()))
+        response = self.batch_web3_provider.make_batch_request(json.dumps(trace_block_rpc))
+
         all_traces = []
 
-        for block_number, block_transactions in grouped_transactions.items():
-            trace_block_rpc = generate_geth_trace_block_by_number_json_rpc(block_number)
-            response = self.web3_provider.make_request(method=trace_block_rpc['method'],
-                                                       params=trace_block_rpc['params'])
-            result = rpc_response_to_result(response)
+        for response_item in response:
+            block_number = response_item.get('id')
+            result = rpc_response_to_result(response_item)
+
             geth_trace = self.geth_trace_mapper.json_dict_to_geth_trace({
                 'block_number': block_number,
                 'transaction_traces': [tx_trace.get('result') for tx_trace in result],
             })
-
-            traces = self.geth_trace_mapper.geth_trace_to_trace_list(geth_trace, block_transactions)
+            traces = self.geth_trace_mapper.geth_trace_to_trace_list(geth_trace, grouped_transactions.get(block_number))
             all_traces.extend(traces)
 
         calculate_trace_statuses(all_traces)
@@ -95,14 +95,6 @@ class ExportGethTracesJob(BaseJob):
         
         for trace in all_traces:
             self.item_exporter.export_item(self.trace_mapper.trace_to_dict(trace))
-
-        # print("Result:")
-        # print(result)
-
-        # print("Geth Trace:")
-        # traces = self.geth_trace_mapper.geth_trace_to_dict(geth_trace)
-        # print(traces)
-        # self.item_exporter.export_item(traces)
 
     def _end(self):
         self.batch_work_executor.shutdown()
